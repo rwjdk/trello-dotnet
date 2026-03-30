@@ -1,5 +1,11 @@
 ﻿# Changelog
 
+## 2.6.0 (30th of March 2026)
+#### TrelloClient
+- Add option to crate, update and delete Custom Fields (`AddCustomFieldAsync`, `UpdateCustomFieldAsync`, `DeleteCustomFieldAsync`, `AddCustomFieldOptionAsync`, `DeleteCustomFieldOptionAsync`, `UpdateCustomFieldOptionAsync`)
+
+---
+
 ## 2.5.0 (26th of March 2026)
 #### TrelloClient
 - Changed card descriptions on add/update requests to always be sent in the JSON body instead of only when the query string became too long

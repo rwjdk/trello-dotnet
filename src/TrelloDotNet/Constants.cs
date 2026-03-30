@@ -252,6 +252,8 @@ namespace TrelloDotNet
                 public const string None = "none";
                 public const string Number = "number";
                 public const string Value = "value";
+                public const string Position = "pos";
+                public const string Color = "color";
             }
 
 

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using TrelloDotNet.Control;
 using TrelloDotNet.Model;
+using TrelloDotNet.Model.Options.AddCustomFieldOptions;
+using TrelloDotNet.Model.Options.UpdateCustomFieldOptions;
 
 // ReSharper disable UnusedMember.Global
 
@@ -258,6 +261,171 @@ namespace TrelloDotNet
         public async Task<List<CustomField>> GetCustomFieldsOnBoardAsync(string boardId, CancellationToken cancellationToken = default)
         {
             return await _apiRequestController.Get<List<CustomField>>(GetUrlBuilder.GetCustomFieldsOnBoard(boardId), cancellationToken);
+        }
+
+        /// <summary>
+        /// Add a Custom Field
+        /// </summary>
+        /// <param name="boardId">ID of Board to add the Custom Field to</param>
+        /// <param name="options">Options defining the Custom Field</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
+        /// <returns>The new Custom Field</returns>
+        public async Task<CustomField> AddCustomFieldAsync(string boardId, AddCustomFieldOptions options, CancellationToken cancellationToken = default)
+        {
+            JsonObject payload = new JsonObject
+            {
+                ["display_cardFront"] = options.ShowFieldOnFrontOfCard,
+                ["idModel"] = boardId,
+                ["modelType"] = "board",
+                ["name"] = options.Name,
+                ["type"] = GetCustomFieldType()
+            };
+
+            if (options.Type == CustomFieldType.List)
+            {
+                if (options.Options == null || options.Options.Count == 0)
+                {
+                    throw new TrelloApiException("No option items defined for the custom field of type list (need at least one)");
+                }
+
+                JsonArray payloadOptions = new JsonArray();
+                foreach (AddCustomFieldOption option in options.Options)
+                {
+                    payloadOptions.Add(new JsonObject
+                    {
+                        ["value"] = new JsonObject
+                        {
+                            ["text"] = option.Text
+                        },
+                        ["color"] = option.Color.GetJsonPropertyName()
+                    });
+                }
+
+                payload.Add("options", payloadOptions);
+            }
+
+            string GetCustomFieldType()
+            {
+                switch (options.Type)
+                {
+                    case CustomFieldType.Unknown:
+                        throw new TrelloApiException("Custom Field Type have not been defined");
+                    default:
+                        return options.Type.GetJsonPropertyName();
+                }
+            }
+
+            
+            return await _apiRequestController.PostWithJsonPayload<CustomField>($"{UrlPaths.CustomFields}", cancellationToken, payload.ToString());
+        }
+
+        /// <summary>
+        /// Update a Custom Field
+        /// </summary>
+        /// <param name="customFieldId">ID of Custom Field to update</param>
+        /// <param name="options">Options to update</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
+        /// <returns>The updated Custom Field</returns>
+        public async Task<CustomField> UpdateCustomFieldAsync(string customFieldId, UpdateCustomFieldOptions options, CancellationToken cancellationToken = default)
+        {
+            JsonObject payload = new JsonObject();
+            if (options.ShowFieldOnFrontOfCard.HasValue)
+            {
+                payload.Add("display/cardFront", options.ShowFieldOnFrontOfCard.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(options.Name))
+            {
+                payload.Add(Constants.TrelloIds.CustomFieldFields.Name, options.Name);
+            }
+
+            if (options.NamedPosition.HasValue)
+            {
+                payload.Add(Constants.TrelloIds.CustomFieldFields.Position, options.NamedPosition.Value.GetJsonPropertyName());
+            }
+            else if(options.Position.HasValue)
+            {
+                payload.Add(Constants.TrelloIds.CustomFieldFields.Position, options.Position.Value);
+            }
+
+            return await _apiRequestController.PutWithJsonPayload<CustomField>($"{UrlPaths.CustomFields}/{customFieldId}", cancellationToken, payload.ToString());
+        }
+
+        /// <summary>
+        /// Delete a custom field by its ID
+        /// </summary>
+        /// <param name="customFieldId">ID of the Custom Field</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        public async Task DeleteCustomFieldAsync(string customFieldId, CancellationToken cancellationToken = default)
+        {
+            await _apiRequestController.Delete($"{UrlPaths.CustomFields}/{customFieldId}", cancellationToken, 0);
+        }
+
+        /// <summary>
+        /// Add a custom field option to a field ot type List
+        /// </summary>
+        /// <param name="customFieldId">the ID of the Custom Field</param>
+        /// <param name="addCustomFieldOption">The new option</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task AddCustomFieldOptionAsync(string customFieldId, AddCustomFieldOption addCustomFieldOption, CancellationToken cancellationToken)
+        {
+            JsonObject payload = new JsonObject
+            {
+                ["value"] = new JsonObject
+                {
+                    ["text"] = addCustomFieldOption.Text
+                },
+                ["color"] = addCustomFieldOption.Color.GetJsonPropertyName()
+            };
+            await _apiRequestController.PostWithJsonPayload($"{UrlPaths.CustomFields}/{customFieldId}/options", cancellationToken, payload.ToString(), 0);
+        }
+
+        /// <summary>
+        /// Delete a Custom Field Option
+        /// </summary>
+        /// <param name="customFieldId">ID of the Custom Field the option is on</param>
+        /// <param name="customFieldOptionId">Id of the option to delete</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        public async Task DeleteCustomFieldOptionAsync(string customFieldId, string customFieldOptionId, CancellationToken cancellationToken)
+        {
+            await _apiRequestController.Delete($"{UrlPaths.CustomFields}/{customFieldId}/options/{customFieldOptionId}", cancellationToken, 0);
+        }
+
+        /// <summary>
+        /// Update a custom Field option
+        /// </summary>
+        /// <param name="customFieldId">ID of the Custom Field the option is on</param>
+        /// <param name="customFieldOptionId">Id of the option to delete</param>
+        /// <param name="updateCustomFieldOption">This to update on the option</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task UpdateCustomFieldOptionAsync(string customFieldId, string customFieldOptionId, UpdateCustomFieldOption updateCustomFieldOption, CancellationToken cancellationToken = default)
+        {
+            JsonObject payload = new JsonObject();
+            if (!string.IsNullOrWhiteSpace(updateCustomFieldOption.Text))
+            {
+                payload.Add("value", new JsonObject
+                {
+                    ["text"] = updateCustomFieldOption.Text
+                });
+            }
+
+            if (updateCustomFieldOption.NamedPosition.HasValue)
+            {
+                payload.Add(Constants.TrelloIds.CustomFieldFields.Position, updateCustomFieldOption.NamedPosition.Value.GetJsonPropertyName());
+            }
+            else if(updateCustomFieldOption.Position.HasValue)
+            {
+                payload.Add(Constants.TrelloIds.CustomFieldFields.Position, updateCustomFieldOption.Position.Value);
+            }
+
+            if (updateCustomFieldOption.Color.HasValue)
+            {
+                payload.Add(Constants.TrelloIds.CustomFieldFields.Color, updateCustomFieldOption.Color.Value.GetJsonPropertyName());
+            }
+
+            await _apiRequestController.PutWithJsonPayload($"{UrlPaths.CustomFields}/{customFieldId}/options/{customFieldOptionId}", cancellationToken, payload.ToString(), 0);
         }
     }
 }
