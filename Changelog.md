@@ -1,5 +1,12 @@
 ﻿# Changelog
 
+## 2.7.0 (4th of April 2026)
+#### TrelloClient
+- `TokenMemberInbox` now include the Inbox Specific Labels
+- `AddCardToInboxAsync` now support Labels
+
+---
+
 ## 2.6.0 (30th of March 2026)
 #### TrelloClient
 - Add option to crate, update and delete Custom Fields (`AddCustomFieldAsync`, `UpdateCustomFieldAsync`, `DeleteCustomFieldAsync`, `AddCustomFieldOptionAsync`, `DeleteCustomFieldOptionAsync`, `UpdateCustomFieldOptionAsync`)

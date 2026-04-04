@@ -9,11 +9,11 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<Authors>Rasmus Wulff Jensen</Authors>
 		<Description>.NET Implementation of the Trello REST API</Description>
-		<Copyright>2025</Copyright>
+		<Copyright>2026</Copyright>
 		<PackageProjectUrl>https://github.com/rwjdk/TrelloDotNet/wiki</PackageProjectUrl>
 		<PackageIcon>trello.png</PackageIcon>
 		<PackageTags>trello api .NET</PackageTags>
-		<Version>2.6.0</Version>
+		<Version>2.7.0</Version>
 		<Company>RWJDK</Company>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>

@@ -224,6 +224,11 @@ namespace TrelloDotNet
                 input.NamedPosition = options.NamedPosition;
             }
 
+            if (options.LabelIds != null)
+            {
+                input.LabelIds = options.LabelIds.Distinct().ToList();
+            }
+
             QueryParameter[] parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(input);
             Card addedCard = await _apiRequestController.Post<Card>($"{UrlPaths.Cards}", cancellationToken, parameters);
 

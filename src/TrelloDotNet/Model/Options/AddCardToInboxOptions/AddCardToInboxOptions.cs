@@ -73,6 +73,11 @@ namespace TrelloDotNet.Model.Options.AddCardToInboxOptions
         }
 
         /// <summary>
+        /// Ids of Labels to add to the Card (Note: Label IDs here are Inbox Specific; aka every user have different inbox labels)
+        /// </summary>
+        public List<string> LabelIds { get; set; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public AddCardToInboxOptions()
@@ -81,6 +86,7 @@ namespace TrelloDotNet.Model.Options.AddCardToInboxOptions
             AttachmentUrlLinks = new List<AttachmentUrlLink>();
             AttachmentFileUploads = new List<AttachmentFileUpload>();
             NamedPosition = Model.NamedPosition.Bottom;
+            LabelIds = new List<string>();
         }
     }
 }

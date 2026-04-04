@@ -70,7 +70,15 @@ namespace TrelloDotNet
         /// <returns>The inbox information for the token owner</returns>
         public async Task<TokenMemberInbox> GetTokenMemberInboxAsync(CancellationToken cancellationToken = default)
         {
-            return (await _apiRequestController.Get<TokenMemberInformationInbox>($"{UrlPaths.Members}/me?fields=inbox", cancellationToken))?.Inbox;
+            TokenMemberInformationInbox inbox = (await _apiRequestController.Get<TokenMemberInformationInbox>($"{UrlPaths.Members}/me?fields=inbox", cancellationToken));
+            if (inbox.Inbox != null)
+            {
+                List<Label> labels = await GetLabelsOfBoardAsync(inbox.Inbox.BoardId, cancellationToken);
+                inbox.Inbox.Labels = labels;
+                return inbox.Inbox;
+            }
+
+            return null;
         }
 
         private static List<Card> OrderCards(List<Card> cards, CardsOrderBy? orderBy)

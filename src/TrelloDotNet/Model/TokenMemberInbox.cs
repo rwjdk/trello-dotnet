@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 
@@ -29,6 +30,11 @@ namespace TrelloDotNet.Model
         [JsonPropertyName(Constants.TrelloIds.OrganizationFields.IdOrganization)]
         [JsonInclude]
         public string OrganizationId { get; private set; }
+
+        /// <summary>
+        /// Labels of the Inbox
+        /// </summary>
+        [JsonIgnore] public List<Label> Labels { get; internal set; }
     }
 }
 
