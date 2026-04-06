@@ -138,6 +138,7 @@ Checklist addedChecklist = await client.AddChecklistAsync("<cardId>", newCheckli
     - [How to work with Webhooks (Part 2: Receiving Events)](https://youtu.be/GsGKDDvuq40)
 
 ## Handy links
+- [Udemy Course](https://www.udemy.com/course/7120835)
 - [Wiki](https://github.com/rwjdk/TrelloDotNet/wiki)
 - [Changelog](https://github.com/rwjdk/TrelloDotNet/blob/main/Changelog.md)
   - [Version 2.0 Migration Guide](https://github.com/rwjdk/TrelloDotNet/issues/51)
