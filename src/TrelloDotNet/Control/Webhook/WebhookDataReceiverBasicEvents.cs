@@ -383,6 +383,11 @@ namespace TrelloDotNet.Control.Webhook
         /// </summary>
         public event WebhookEventHandler<WebhookAction> OnUpdateCustomField;
 
+        /// <summary>
+        /// OnMoveInboxCardToBoard
+        /// </summary>
+        public event WebhookEventHandler<WebhookAction> OnMoveInboxCardToBoard;
+
         internal void FireEvent(WebhookAction action)
         {
             switch (action.Type)
@@ -608,6 +613,9 @@ namespace TrelloDotNet.Control.Webhook
                     break;
                 case WebhookActionTypes.UpdateCustomField:
                     OnUpdateCustomField?.Invoke(action);
+                    break;
+                case WebhookActionTypes.MoveInboxCardToBoard:
+                    OnMoveInboxCardToBoard?.Invoke(action);
                     break;
                 default:
                     OnUnknownActionType?.Invoke(action);

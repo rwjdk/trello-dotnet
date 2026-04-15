@@ -1,5 +1,11 @@
 ﻿# Changelog
 
+## 2.8.0 (15th of April 2026)
+#### TrelloClient
+- Added WebhookActionTypes.MoveInboxCardToBoard + WekhookReceiverEvent to support the event of a user move a card from their Inbox into a Board.
+
+---
+
 ## 2.7.0 (4th of April 2026)
 #### TrelloClient
 - `TokenMemberInbox` now include the Inbox Specific Labels
