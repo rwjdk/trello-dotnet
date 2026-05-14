@@ -123,6 +123,45 @@ public class BatchTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtu
         Assert.Null(data[0].Start);
     }
 
+    [Fact]
+    public async Task GetCardsWithNullOptionsUsesSimpleBatchPath()
+    {
+        (List list, Card card1) = await AddDummyCardAndList(_boardId);
+        Card card2 = await AddDummyCardToList(list);
+
+        List<Card>? data = await TrelloClient.GetCardsAsync([card1.Id, card2.Id], (GetCardOptions)null!, cancellationToken: TestCancellationToken);
+
+        Assert.Equal(2, data.Count);
+        Assert.Contains(data, x => x.Id == card1.Id);
+        Assert.Contains(data, x => x.Id == card2.Id);
+    }
+
+    [Fact]
+    public async Task GetBoardsWithNullOptionsUsesSimpleBatchPath()
+    {
+        List<Board>? data = await TrelloClient.GetBoardsAsync([fixture.BoardId!], (GetBoardOptions)null!, cancellationToken: TestCancellationToken);
+
+        Assert.Single(data);
+        Assert.Equal(fixture.BoardId, data[0].Id);
+    }
+
+    [Fact]
+    public async Task ExecuteBatchedRequestAsyncHandlesMoreThanTenRequests()
+    {
+        int actionCount = 0;
+        List<BatchRequest> requests = Enumerable.Range(0, 11)
+            .Select(_ => BatchRequest.GetBoard(_boardId, result =>
+            {
+                Assert.Equal(_boardId, result.GetData<Board>().Id);
+                actionCount++;
+            }))
+            .ToList();
+
+        await TrelloClient.ExecuteBatchedRequestAsync(requests, TestCancellationToken);
+
+        Assert.Equal(11, actionCount);
+    }
+
 
     [Fact]
     public async Task GetMembers()

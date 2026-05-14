@@ -4,6 +4,7 @@ using TrelloDotNet.Model.Options;
 using TrelloDotNet.Model.Options.AddCardFromTemplateOptions;
 using TrelloDotNet.Model.Options.AddCardOptions;
 using TrelloDotNet.Model.Options.CopyCardOptions;
+using TrelloDotNet.Model.Options.DueRecurrenceOptions;
 using TrelloDotNet.Model.Options.GetCardOptions;
 using TrelloDotNet.Model.Options.MirrorCardOptions;
 using TrelloDotNet.Model.Options.MoveCardToBoardOptions;
@@ -85,6 +86,32 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtur
         AttachmentFileUpload attachmentFileUpload = new AttachmentFileUpload(stream, "MyFileName.png", "SomeName");
         Attachment att2 = await TrelloClient.AddAttachmentToCardAsync(card.Id, attachmentFileUpload, true, cancellationToken: TestCancellationToken);
         return att2;
+    }
+
+    [Fact]
+    public async Task AttachmentNamedPositions()
+    {
+        Card card = await AddDummyCard(_board.Id, "AttachmentNamedPositions");
+        AttachmentUrlLink topAttachment = new AttachmentUrlLink("https://www.rwj.dk/top", "Top Attachment")
+        {
+            NamedPosition = NamedPosition.Top
+        };
+        AttachmentUrlLink bottomAttachment = new AttachmentUrlLink("https://www.rwj.dk/bottom", "Bottom Attachment")
+        {
+            NamedPosition = NamedPosition.Bottom
+        };
+
+        Attachment addedTopAttachment = await TrelloClient.AddAttachmentToCardAsync(card.Id, topAttachment, cancellationToken: TestCancellationToken);
+        Attachment addedBottomAttachment = await TrelloClient.AddAttachmentToCardAsync(card.Id, bottomAttachment, cancellationToken: TestCancellationToken);
+
+        Attachment retrievedTopAttachment = await TrelloClient.GetAttachmentOnCardAsync(card.Id, addedTopAttachment.Id, cancellationToken: TestCancellationToken);
+        Attachment retrievedBottomAttachment = await TrelloClient.GetAttachmentOnCardAsync(card.Id, addedBottomAttachment.Id, cancellationToken: TestCancellationToken);
+        List<Attachment> attachments = await TrelloClient.GetAttachmentsOnCardAsync(card.Id, cancellationToken: TestCancellationToken);
+
+        Assert.Equal("Top Attachment", retrievedTopAttachment.Name);
+        Assert.Equal("Bottom Attachment", retrievedBottomAttachment.Name);
+        Assert.Contains(attachments, x => x.Id == addedTopAttachment.Id);
+        Assert.Contains(attachments, x => x.Id == addedBottomAttachment.Id);
     }
 
     [Fact]
@@ -260,6 +287,26 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtur
     }
 
     [Fact]
+    public async Task AddSeparatorCards()
+    {
+        List list = await AddDummyList(_board.Id);
+
+        Card separatorAtTop = await TrelloClient.AddSeparatorCardAsync(list.Id, 0M, TestCancellationToken);
+        Card separatorAtBottom = await TrelloClient.AddSeparatorCardAsync(list.Id, NamedPosition.Bottom, TestCancellationToken);
+        Card separatorAtPosition = await TrelloClient.AddSeparatorCardAsync(list.Id, 1234M, TestCancellationToken);
+
+        Assert.Equal("---", separatorAtTop.Name);
+        Assert.Equal("---", separatorAtBottom.Name);
+        Assert.Equal("---", separatorAtPosition.Name);
+        Assert.True(separatorAtTop.IsSeparator);
+        Assert.True(separatorAtBottom.IsSeparator);
+        Assert.True(separatorAtPosition.IsSeparator);
+        Assert.Equal(list.Id, separatorAtTop.ListId);
+        Assert.Equal(list.Id, separatorAtBottom.ListId);
+        Assert.Equal(list.Id, separatorAtPosition.ListId);
+    }
+
+    [Fact]
     public async Task Checklists()
     {
         await using TemporaryBoardContext boardContext = await CreateTemporaryBoardAsync(nameof(Checklists));
@@ -388,6 +435,130 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtur
         Card? cardWithStartAndDue = await TrelloClient.SetStartDateAndDueDateOnCardAsync(cardWithDates.Id, testStartDate.AddDays(1), testDueDate.AddDays(1), true, cancellationToken: TestCancellationToken);
         Assert.Equal(testStartDate.AddDays(1), cardWithStartAndDue.Start);
         Assert.Equal(testDueDate.AddDays(1), cardWithStartAndDue.Due);
+    }
+
+    [Theory]
+    [MemberData(nameof(RecurringDueDateOptions))]
+    public async Task SetRecurringDueDateVariations(DueRecurrenceOptions options)
+    {
+        List? list = await TrelloClient.AddListAsync(new List("List for Card Tests", _board.Id), cancellationToken: TestCancellationToken);
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Recurring Due Date " + options.Recurrence), cancellationToken: TestCancellationToken);
+
+        await TrelloClient.SetRecurringDueDateAsync(card.Id, options, TestCancellationToken);
+
+        Card cardAfterSet = await TrelloClient.GetCardAsync(card.Id, new GetCardOptions
+        {
+            CardFields = new CardFields(CardFieldsType.Due)
+        }, cancellationToken: TestCancellationToken);
+
+        Assert.Equal(options.FirstDueDate, cardAfterSet.Due);
+
+        await TrelloClient.RemoveRecurringDueDateAsync(card.Id, TestCancellationToken);
+
+        Card cardAfterRemove = await TrelloClient.GetCardAsync(card.Id, new GetCardOptions
+        {
+            CardFields = new CardFields(CardFieldsType.Due)
+        }, cancellationToken: TestCancellationToken);
+
+        Assert.Equal(options.FirstDueDate, cardAfterRemove.Due);
+    }
+
+    [Fact]
+    public async Task SetRecurringDueDateUsesExistingDueDateWhenFirstDueDateIsNotProvided()
+    {
+        List? list = await TrelloClient.AddListAsync(new List("List for Card Tests", _board.Id), cancellationToken: TestCancellationToken);
+        DateTimeOffset existingDueDate = new(new DateTime(2099, 2, 5, 12, 0, 0, DateTimeKind.Utc));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Recurring Due Date Existing Due")
+        {
+            Due = existingDueDate
+        }, cancellationToken: TestCancellationToken);
+
+        await TrelloClient.SetRecurringDueDateAsync(card.Id, new DueRecurrenceOptions
+        {
+            Recurrence = DueRecurrenceType.Daily
+        }, TestCancellationToken);
+
+        Card cardAfterSet = await TrelloClient.GetCardAsync(card.Id, new GetCardOptions
+        {
+            CardFields = new CardFields(CardFieldsType.Due)
+        }, cancellationToken: TestCancellationToken);
+
+        Assert.Equal(existingDueDate, cardAfterSet.Due);
+
+        await TrelloClient.RemoveRecurringDueDateAsync(card.Id, TestCancellationToken);
+    }
+
+    [Fact]
+    public async Task SetRecurringDueDateSetsDueDateWhenCardHasNoDueDateAndFirstDueDateIsNotProvided()
+    {
+        List? list = await TrelloClient.AddListAsync(new List("List for Card Tests", _board.Id), cancellationToken: TestCancellationToken);
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Recurring Due Date No Due"), cancellationToken: TestCancellationToken);
+        DateTimeOffset beforeSet = DateTimeOffset.UtcNow.AddMinutes(-1);
+
+        await TrelloClient.SetRecurringDueDateAsync(card.Id, new DueRecurrenceOptions
+        {
+            Recurrence = DueRecurrenceType.Daily
+        }, TestCancellationToken);
+
+        Card cardAfterSet = await TrelloClient.GetCardAsync(card.Id, new GetCardOptions
+        {
+            CardFields = new CardFields(CardFieldsType.Due)
+        }, cancellationToken: TestCancellationToken);
+
+        Assert.NotNull(cardAfterSet.Due);
+        Assert.True(cardAfterSet.Due >= beforeSet);
+        Assert.True(cardAfterSet.Due <= DateTimeOffset.UtcNow.AddMinutes(1));
+
+        await TrelloClient.RemoveRecurringDueDateAsync(card.Id, TestCancellationToken);
+    }
+
+    public static IEnumerable<object[]> RecurringDueDateOptions()
+    {
+        yield return
+        [
+            new DueRecurrenceOptions
+            {
+                Recurrence = DueRecurrenceType.Daily,
+                FirstDueDate = new DateTimeOffset(new DateTime(2099, 1, 5, 12, 0, 0, DateTimeKind.Utc))
+            }
+        ];
+        yield return
+        [
+            new DueRecurrenceOptions
+            {
+                Recurrence = DueRecurrenceType.Weekdays,
+                FirstDueDate = new DateTimeOffset(new DateTime(2099, 1, 6, 12, 0, 0, DateTimeKind.Utc))
+            }
+        ];
+        yield return
+        [
+            new DueRecurrenceOptions
+            {
+                Recurrence = DueRecurrenceType.Weekly,
+                FirstDueDate = new DateTimeOffset(new DateTime(2099, 1, 7, 12, 0, 0, DateTimeKind.Utc)),
+                Monday = true,
+                Wednesday = true,
+                Friday = true
+            }
+        ];
+        yield return
+        [
+            new DueRecurrenceOptions
+            {
+                Recurrence = DueRecurrenceType.DayOfMonth,
+                FirstDueDate = new DateTimeOffset(new DateTime(2099, 1, 8, 12, 0, 0, DateTimeKind.Utc))
+            }
+        ];
+        yield return
+        [
+            new DueRecurrenceOptions
+            {
+                Recurrence = DueRecurrenceType.XthDayOfWeekOfTheMonth,
+                FirstDueDate = new DateTimeOffset(new DateTime(2099, 1, 9, 12, 0, 0, DateTimeKind.Utc)),
+                TimezoneId = "Europe/Copenhagen",
+                XthPosition = DueRecurrenceXthPosition.Second
+            }
+        ];
     }
 
     [Fact]

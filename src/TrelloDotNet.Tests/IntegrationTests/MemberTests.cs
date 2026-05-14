@@ -55,7 +55,7 @@ public class MemberTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task AddRemoveChangeMemberOnBoard()
     {
-        const string memberId = "64ce44c552fd41aa6937e866"; //Test_user rwj_test1@outlook.com
+        const string memberId = "69062db07766a797a98c6a13"; //Test_user ai@rwj.dk
         await TrelloClient.AddMemberToBoardAsync(_board.Id, memberId, MembershipType.Normal, cancellationToken: TestCancellationToken);
 
         List<Member>? members = await TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
@@ -75,7 +75,7 @@ public class MemberTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         List<Member>? membersAfter = await TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
         Assert.True(membersAfter.All(x => x.Id != memberId));
 
-        await TrelloClient.InviteMemberToBoardViaEmailAsync(_board.Id, "rwj_test1@outlook.com", MembershipType.Normal, cancellationToken: TestCancellationToken);
+        await TrelloClient.InviteMemberToBoardViaEmailAsync(_board.Id, "ai@rwj.dk", MembershipType.Normal, cancellationToken: TestCancellationToken);
 
         List<Member>? membersAfterInvite = await TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
         Assert.Contains(membersAfterInvite, x => x.Id == memberId);
