@@ -42,6 +42,13 @@ public class CustomFieldManagementTests : TestBase
             Assert.Equal(fieldPrefix + "-Text-Updated", updatedTextField.Name);
             Assert.True(updatedTextField.Display.ShowFieldOnFrontOfCard);
 
+            CustomField movedTextField = await TrelloClient.UpdateCustomFieldAsync(textField.Id, new UpdateCustomFieldOptions
+            {
+                NamedPosition = NamedPosition.Bottom
+            }, TestCancellationToken);
+
+            Assert.Equal(textField.Id, movedTextField.Id);
+
             CustomField listField = await TrelloClient.AddCustomFieldAsync(board.Id, new AddCustomFieldOptions
             {
                 Name = fieldPrefix + "-List",
@@ -74,6 +81,14 @@ public class CustomFieldManagementTests : TestBase
             CustomFieldOption updatedMediumOption = Assert.Single(listFieldAfterUpdateOption.Options, x => x.Id == mediumOption.Id);
             Assert.Equal("Medium Updated", updatedMediumOption.Value.Text);
             Assert.Equal(CustomFieldOptionColor.Blue, updatedMediumOption.Color);
+
+            await TrelloClient.UpdateCustomFieldOptionAsync(listField.Id, updatedMediumOption.Id, new UpdateCustomFieldOption
+            {
+                NamedPosition = NamedPosition.Bottom
+            }, TestCancellationToken);
+
+            CustomField listFieldAfterNamedPositionUpdate = await GetCustomFieldAsync(board.Id, listField.Id);
+            Assert.Contains(listFieldAfterNamedPositionUpdate.Options, x => x.Id == updatedMediumOption.Id);
 
             await TrelloClient.DeleteCustomFieldOptionAsync(listField.Id, updatedMediumOption.Id, TestCancellationToken);
             CustomField listFieldAfterDeleteOption = await GetCustomFieldAsync(board.Id, listField.Id);
@@ -128,9 +143,84 @@ public class CustomFieldManagementTests : TestBase
         Assert.Equal("Custom Field Type have not been defined", noTypeException.Message);
     }
 
+    [Fact]
+    public async Task UpdateCustomFieldValuesOnCardUsingStringOverloads()
+    {
+        Board? board = await GetSpecialPaidSubscriptionBoard();
+        if (board == null)
+        {
+            return; //Special Test-board not available
+        }
+
+        const string listPrefix = "UnitTestCustomFieldStringValues";
+        await CleanUp(board, listPrefix);
+        try
+        {
+            List<CustomField> customFields = await TrelloClient.GetCustomFieldsOnBoardAsync(board.Id, TestCancellationToken);
+            CustomField fieldList = customFields.Single(x => x.Name == "Priority");
+            CustomField fieldCheckbox = customFields.Single(x => x.Name == "IsSomething");
+            CustomField fieldDate = customFields.Single(x => x.Name == "SomeDate");
+            CustomField fieldNumber = customFields.Single(x => x.Name == "SomeNumber");
+            CustomField fieldText = customFields.Single(x => x.Name == "SomeText");
+            CustomFieldOption listOption = fieldList.Options.First();
+
+            List list = await TrelloClient.AddListAsync(new List(listPrefix + Guid.NewGuid(), board.Id), cancellationToken: TestCancellationToken);
+            Card card = await AddDummyCardToList(list, "String Values");
+
+            await TrelloClient.UpdateCustomFieldValueOnCardAsync(card.Id, fieldCheckbox, "true", TestCancellationToken);
+            await TrelloClient.UpdateCustomFieldValueOnCardAsync(card.Id, fieldDate, "2099-01-01T12:00:00.000Z", TestCancellationToken);
+            await TrelloClient.UpdateCustomFieldValueOnCardAsync(card.Id, fieldList, listOption.Id, TestCancellationToken);
+            await TrelloClient.UpdateCustomFieldValueOnCardAsync(card.Id, fieldNumber, "42.33", TestCancellationToken);
+            await TrelloClient.UpdateCustomFieldValueOnCardAsync(card.Id, fieldText, "Hello from string overload", TestCancellationToken);
+
+            List<CustomFieldItem> customValues = await TrelloClient.GetCustomFieldItemsForCardAsync(card.Id, TestCancellationToken);
+            Assert.True(customValues.GetCustomFieldValueAsBoolean(fieldCheckbox));
+            Assert.Equal(new DateTimeOffset(2099, 1, 1, 12, 0, 0, TimeSpan.Zero), customValues.GetCustomFieldValueAsDateTimeOffset(fieldDate));
+            Assert.Equal(listOption.Id, customValues.GetCustomFieldValueAsOption(fieldList).Id);
+            Assert.Equal(42.33M, customValues.GetCustomFieldValueAsDecimal(fieldNumber));
+            Assert.Equal("Hello from string overload", customValues.GetCustomFieldValueAsString(fieldText));
+        }
+        finally
+        {
+            await CleanUp(board, listPrefix);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateCustomFieldValueOnCardRejectsMismatchedTypedValues()
+    {
+        Board? board = await GetSpecialPaidSubscriptionBoard();
+        if (board == null)
+        {
+            return; //Special Test-board not available
+        }
+
+        List<CustomField> customFields = await TrelloClient.GetCustomFieldsOnBoardAsync(board.Id, TestCancellationToken);
+        CustomField fieldText = customFields.Single(x => x.Name == "SomeText");
+        CustomField fieldCheckbox = customFields.Single(x => x.Name == "IsSomething");
+        CustomField fieldDate = customFields.Single(x => x.Name == "SomeDate");
+        CustomField fieldNumber = customFields.Single(x => x.Name == "SomeNumber");
+        CustomField fieldList = customFields.Single(x => x.Name == "Priority");
+
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await TrelloClient.UpdateCustomFieldValueOnCardAsync("cardId", fieldText, true, TestCancellationToken));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await TrelloClient.UpdateCustomFieldValueOnCardAsync("cardId", fieldCheckbox, DateTimeOffset.UtcNow, TestCancellationToken));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await TrelloClient.UpdateCustomFieldValueOnCardAsync("cardId", fieldDate, 1, TestCancellationToken));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await TrelloClient.UpdateCustomFieldValueOnCardAsync("cardId", fieldList, 1.5M, TestCancellationToken));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await TrelloClient.UpdateCustomFieldValueOnCardAsync("cardId", fieldNumber, fieldList.Options.First(), TestCancellationToken));
+    }
+
     private async Task<CustomField> GetCustomFieldAsync(string boardId, string customFieldId)
     {
         List<CustomField> customFields = await TrelloClient.GetCustomFieldsOnBoardAsync(boardId, TestCancellationToken);
         return customFields.Single(x => x.Id == customFieldId);
+    }
+
+    private async Task CleanUp(Board board, string listPrefix)
+    {
+        List<List>? lists = await TrelloClient.GetListsOnBoardAsync(board.Id, cancellationToken: TestCancellationToken);
+        foreach (List list in lists.Where(x => x.Name.StartsWith(listPrefix)))
+        {
+            await TrelloClient.DeleteListAsync(list.Id, cancellationToken: TestCancellationToken);
+        }
     }
 }

@@ -183,6 +183,36 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtur
     }
 
     [Fact]
+    public async Task AddCardValidation()
+    {
+        ArgumentNullException nullOptionsException = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await TrelloClient.AddCardAsync(null!, cancellationToken: TestCancellationToken));
+        Assert.Equal("options", nullOptionsException.ParamName);
+
+        TrelloApiException missingListIdException = await Assert.ThrowsAsync<TrelloApiException>(async () =>
+            await TrelloClient.AddCardAsync(new AddCardOptions
+            {
+                Name = "Missing ListId"
+            }, cancellationToken: TestCancellationToken));
+        Assert.Equal("No ListId provided in options (Mandatory)", missingListIdException.Message);
+    }
+
+    [Fact]
+    public async Task AddCardWithExplicitPosition()
+    {
+        List? list = await TrelloClient.AddListAsync(new List("List for Card Tests", _board.Id), cancellationToken: TestCancellationToken);
+
+        Card addedCard = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Positioned Card")
+        {
+            Position = 1234
+        }, cancellationToken: TestCancellationToken);
+
+        Assert.Equal("Positioned Card", addedCard.Name);
+        Assert.Equal(list.Id, addedCard.ListId);
+        Assert.Equal(1234, addedCard.Position);
+    }
+
+    [Fact]
     public async Task AddCardFull()
     {
         List? list = await TrelloClient.AddListAsync(new List("List for Card Tests", _board.Id), cancellationToken: TestCancellationToken);
@@ -284,6 +314,24 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtur
 
         Assert.NotEqual(copy.Id, card.Id);
         Assert.NotEqual(copy.Name, card.Name);
+    }
+
+    [Fact]
+    public async Task CopyCardWithExplicitPositionAndAllKeep()
+    {
+        (List list, Card card) = await AddDummyCardAndList(_board.Id);
+
+        Card copy = await TrelloClient.CopyCardAsync(new CopyCardOptions
+        {
+            Position = 1234,
+            Keep = CopyCardOptionsToKeep.All,
+            SourceCardId = card.Id,
+            TargetListId = list.Id
+        }, cancellationToken: TestCancellationToken);
+
+        Assert.NotEqual(copy.Id, card.Id);
+        Assert.Equal(card.Name, copy.Name);
+        Assert.Equal(list.Id, copy.ListId);
     }
 
     [Fact]
@@ -867,6 +915,32 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtur
     }
 
     [Fact]
+    public async Task GetCardsOnBoardWithPageSize()
+    {
+        await using TemporaryBoardContext boardContext = await CreateTemporaryBoardAsync(nameof(GetCardsOnBoardWithPageSize));
+        List list = await AddDummyList(boardContext.Board.Id);
+        Card card1 = await AddDummyCardToList(list, "Paged 1");
+        Card card2 = await AddDummyCardToList(list, "Paged 2");
+        Card card3 = await AddDummyCardToList(list, "Paged 3");
+        Card card4 = await AddDummyCardToList(list, "Paged 4");
+        GetCardOptions options = new GetCardOptions
+        {
+            PageSize = 2,
+            Limit = 3,
+            FilterConditions = [CardsFilterCondition.ListId(CardsConditionIds.Equal, list.Id)],
+            OrderBy = CardsOrderBy.CreateDateAsc
+        };
+
+        List<Card>? cards = await TrelloClient.GetCardsOnBoardAsync(boardContext.Board.Id, options, cancellationToken: TestCancellationToken);
+
+        Assert.Equal(3, cards.Count);
+        Assert.All(cards, card => Assert.Contains(card.Id, new[] { card1.Id, card2.Id, card3.Id, card4.Id }));
+        Assert.Equal(3, options.Limit);
+        Assert.Null(options.Before);
+        Assert.Null(options.Since);
+    }
+
+    [Fact]
     public async Task GetCardsForMember()
     {
         List list1 = await AddDummyList(_board.Id);
@@ -1018,6 +1092,30 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtur
     }
 
     [Fact]
+    public async Task MirrorCardWithExplicitPosition()
+    {
+        Board board = new Board("UnitTestBoard-" + Guid.NewGuid())
+        {
+            OrganizationId = _board.OrganizationId
+        };
+        Board secondBoard = await TrelloClient.AddBoardAsync(board, cancellationToken: TestCancellationToken);
+
+        List sourceList = await AddDummyList(_board.Id);
+        List targetList = await AddDummyList(secondBoard.Id);
+        Card sourceCard = await AddDummyCardToList(sourceList, description: "Test Description");
+
+        Card? mirroredCard = await TrelloClient.MirrorCardAsync(new MirrorCardOptions
+        {
+            SourceCardId = sourceCard.Id,
+            TargetListId = targetList.Id,
+            Position = 1234
+        }, cancellationToken: TestCancellationToken);
+
+        Assert.NotEqual(sourceCard.Id, mirroredCard.Id);
+        Assert.Equal(targetList.Id, mirroredCard.ListId);
+    }
+
+    [Fact]
     public async Task AddCardFromTemplate()
     {
         List sourceList = await AddDummyList(_board.Id);
@@ -1052,5 +1150,31 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtur
         Assert.Equal(templateCard.Due, newCard.Due);
         Assert.Equal(templateCard.MemberIds.Count, newCard.MemberIds.Count);
         Assert.Equal(templateCard.LabelIds.Count, newCard.LabelIds.Count);
+    }
+
+    [Fact]
+    public async Task AddCardFromTemplateWithExplicitPositionAndPartialKeep()
+    {
+        List sourceList = await AddDummyList(_board.Id);
+        List targetList = await AddDummyList(_board.Id);
+        Card? templateCard = await AddDummyCardToList(sourceList,
+            start: DateTimeOffset.UtcNow,
+            due: DateTimeOffset.UtcNow.AddDays(1),
+            description: "Template Description");
+
+        Card? newCard = await TrelloClient.AddCardFromTemplateAsync(new AddCardFromTemplateOptions
+        {
+            SourceTemplateCardId = templateCard.Id,
+            TargetListId = targetList.Id,
+            Position = 1234,
+            Keep = AddCardFromTemplateOptionsToKeep.Due | AddCardFromTemplateOptionsToKeep.Start
+        }, cancellationToken: TestCancellationToken);
+
+        Assert.NotEqual(templateCard.Id, newCard.Id);
+        Assert.Equal(templateCard.Name, newCard.Name);
+        Assert.Equal(targetList.Id, newCard.ListId);
+        Assert.Equal(templateCard.Start, newCard.Start);
+        Assert.Equal(templateCard.Due, newCard.Due);
+        Assert.Equal(templateCard.Description, newCard.Description);
     }
 }
