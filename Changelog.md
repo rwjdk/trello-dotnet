@@ -1,10 +1,11 @@
 ﻿# Changelog
 
-## Unreleased
+## 2.8.1 (17th of August 2026)
 #### TrelloClient
+- Fixed `DownloadAttachmentAsync` sending Trello credentials to untrusted attachment URLs
 - Added more Tests
 
----
+<hr>
 
 ## 2.8.0 (15th of April 2026)
 #### TrelloClient

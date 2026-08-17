@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
@@ -123,14 +124,82 @@ namespace TrelloDotNet
         /// <returns>A stream containing the downloaded attachment data</returns>
         public async Task<Stream> DownloadAttachmentAsync(string url, CancellationToken cancellationToken = default)
         {
-            try
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri attachmentUri) ||
+                (attachmentUri.Scheme != Uri.UriSchemeHttps && attachmentUri.Scheme != Uri.UriSchemeHttp))
             {
-                _apiRequestController.HttpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"OAuth oauth_consumer_key=\"{_apiRequestController.ApiKey}\", oauth_token=\"{_apiRequestController.Token}\"");
-                return await _apiRequestController.HttpClient.GetStreamAsync(url);
+                throw new ArgumentException("The attachment URL must be an absolute HTTP or HTTPS URL.", nameof(url));
             }
-            finally
+
+            using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, attachmentUri))
             {
-                _apiRequestController.HttpClient.DefaultRequestHeaders.Authorization = null;
+                if (ShouldSendTrelloCredentials(attachmentUri))
+                {
+                    request.Headers.Authorization = AuthenticationHeaderValue.Parse($"OAuth oauth_consumer_key=\"{_apiRequestController.ApiKey}\", oauth_token=\"{_apiRequestController.Token}\"");
+                }
+
+                HttpResponseMessage response = await _apiRequestController.HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                try
+                {
+                    response.EnsureSuccessStatusCode();
+                    Stream stream = await response.Content.ReadAsStreamAsync();
+                    return new HttpResponseMessageStream(stream, response);
+                }
+                catch
+                {
+                    response.Dispose();
+                    throw;
+                }
+            }
+        }
+
+        private static bool ShouldSendTrelloCredentials(Uri uri)
+        {
+            return uri.Scheme == Uri.UriSchemeHttps &&
+                   (string.Equals(uri.Host, "api.trello.com", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(uri.Host, "trello.com", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private sealed class HttpResponseMessageStream : Stream
+        {
+            private readonly Stream _stream;
+            private readonly HttpResponseMessage _response;
+
+            internal HttpResponseMessageStream(Stream stream, HttpResponseMessage response)
+            {
+                _stream = stream;
+                _response = response;
+            }
+
+            public override bool CanRead => _stream.CanRead;
+            public override bool CanSeek => _stream.CanSeek;
+            public override bool CanWrite => _stream.CanWrite;
+            public override long Length => _stream.Length;
+
+            public override long Position
+            {
+                get => _stream.Position;
+                set => _stream.Position = value;
+            }
+
+            public override void Flush() => _stream.Flush();
+
+            public override int Read(byte[] buffer, int offset, int count) => _stream.Read(buffer, offset, count);
+
+            public override long Seek(long offset, SeekOrigin origin) => _stream.Seek(offset, origin);
+
+            public override void SetLength(long value) => _stream.SetLength(value);
+
+            public override void Write(byte[] buffer, int offset, int count) => _stream.Write(buffer, offset, count);
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    _stream.Dispose();
+                    _response.Dispose();
+                }
+
+                base.Dispose(disposing);
             }
         }
     }
