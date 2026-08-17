@@ -1,6 +1,12 @@
 ﻿# Changelog 
 *Below is the version history of [TrelloDotNet](https://github.com/rwjdk/TrelloDotNet) (An wrapper of the Trello API)*
 
+## 1.11.14 (17th of August 2026)
+#### TrelloClient
+- Fixed `DownloadAttachmentAsync` sending Trello credentials to untrusted attachment URLs
+
+<hr>
+
 ## 1.11.13 (4th of March 2025)
 #### TrelloClient
 - Fixed that [Search](https://github.com/rwjdk/TrelloDotNet/wiki/Search) failed deserializing JSON
