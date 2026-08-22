@@ -152,7 +152,7 @@ TrelloClient client = new TrelloClient("APIKEY", "TOKEN", options);
 ### Action Features
 `Actions` in Trello are the 'things' the `Members` do on a `Board`... There are common things like 'Create a Card' or 'Add a Label to a Card', and more obscure things like example 'Accept Enterprise Join Request'. In total, there are over 75 different types of `Actions`. You can retrieve these events via the API to example get a list of things that happened on a specific card. 
 
-> Tip: There is a list of different events in struct [`TrelloDotNet.Model.Webhook.WebhookActionTypes`](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/Model/Webhook/WebhookActionTypes.cs) for you to consume. 
+> Tip: There is a list of different events in struct [`TrelloDotNet.Model.Webhook.WebhookActionTypes`](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/Model/Webhook/WebhookActionTypes.cs) for you to consume. 
 
 > NB: You can max get the last 1000 Actions that have happened.
 
@@ -257,7 +257,7 @@ NB: Custom Fields are a Paid Trello Feature only :-/
 
 ### Generic Features
 This API does not cover every single little or obscure feature the Trello API has to offer, but it could be that you wish to use something that is not exposed anyway. For that reason, Generic `Post`, `Put`, `Get`, and `Delete` methods exist in the API where you can provide the endpoint, parameters and the API will take care of all the core stuff of the call
->Tip: If you feel it should be in the product then submit it on the [Issues](https://github.com/rwjdk/TrelloDotNet/issues) page). 
+>Tip: If you feel it should be in the product then submit it on the [Issues](https://github.com/rwjdk/trello-dotnet/issues) page). 
 
 | Feature| Description |
 |:---|:---|

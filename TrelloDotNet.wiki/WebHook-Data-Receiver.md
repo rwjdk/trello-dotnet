@@ -1,6 +1,6 @@
 With the Webhook Data Receiver, you are able to easily turn the JSON received from a Webhook into C# Objects and Events so you can process them.
 
-![image](https://github.com/rwjdk/TrelloDotNet/assets/7032102/7db2f1a6-b59f-43a9-b0cb-e945908bea1e)
+![image](https://github.com/rwjdk/trello-dotnet/assets/7032102/7db2f1a6-b59f-43a9-b0cb-e945908bea1e)
 
 > A more automated alternative to the Webhook Data Receiver is the [Automation Engine](Automation-Engine). For comparison see [this page](Automation-Engine-vs-WebHook-Data-Receiver-Comparison)
 

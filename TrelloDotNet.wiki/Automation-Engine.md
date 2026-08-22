@@ -104,7 +104,7 @@ var addedWebhook = trelloClient.AddWebhookAsync(webhook);
 
 Here is the full setup in overview form:
 
-![image](https://github.com/rwjdk/TrelloDotNet/assets/7032102/0d5eb770-4c36-42e8-bac6-734d23e7bc23)
+![image](https://github.com/rwjdk/trello-dotnet/assets/7032102/0d5eb770-4c36-42e8-bac6-734d23e7bc23)
 
 ## Triggers
 The Automation engine has the following out-of-the-box Triggers
@@ -125,7 +125,7 @@ The Automation engine has the following out-of-the-box Triggers
 | [MemberAddedToCardTrigger](MemberAddedToCardTrigger) | Trigger that occurs when a Card gets a new Member Added |
 | [MemberRemovedFromCardTrigger](MemberRemovedFromCardTrigger) | Trigger that occurs when a Card has a Member removed |
 
-_If you need other/more advanced triggers then please submit a [feature request issue](https://github.com/rwjdk/TrelloDotNet/issues) or make your own [Custom Trigger](Custom-Automation-Triggers)_
+_If you need other/more advanced triggers then please submit a [feature request issue](https://github.com/rwjdk/trello-dotnet/issues) or make your own [Custom Trigger](Custom-Automation-Triggers)_
 
 ## Conditions
 The Automation engine has the following out-of-the-box Conditions
@@ -144,7 +144,7 @@ The Automation engine has the following out-of-the-box Conditions
 | [ListCondition](ListCondition) | Condition that checks if a card is on a specific list or the event involved a specific list |
 | [MemberCondition](MemberCondition) | Condition that checks whether Members on a Card is present/not present |
 
-_If you need other/more advanced conditions then please submit a [feature request issue](https://github.com/rwjdk/TrelloDotNet/issues) or make your own [Custom Condition](Custom-Automation-Conditions)_
+_If you need other/more advanced conditions then please submit a [feature request issue](https://github.com/rwjdk/trello-dotnet/issues) or make your own [Custom Condition](Custom-Automation-Conditions)_
 
 ## Actions
 The Automation engine has the following out-of-the-box Actions
@@ -169,4 +169,4 @@ The Automation engine has the following out-of-the-box Actions
 | [SetFieldsOnCardAction](SetFieldsOnCardAction) | Action to set one or more fields on a card |
 | [StopProcessingFurtherAction](StopProcessingFurtherAction) | An action that will stop any further processing of automations after this one for the given Webhook Receive Request |
 
-_If you need other/more advanced Actions then please submit a [feature request issue](https://github.com/rwjdk/TrelloDotNet/issues) or make your own [Custom Action](Custom-Automation-Actions)_
+_If you need other/more advanced Actions then please submit a [feature request issue](https://github.com/rwjdk/trello-dotnet/issues) or make your own [Custom Action](Custom-Automation-Actions)_

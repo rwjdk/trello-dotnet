@@ -40,4 +40,4 @@ string name = "My Optional Name for the File";
 var fileAttachment = await _trelloClient.AddAttachmentToCardAsync(cardId, new AttachmentFileUpload(stream, filename, name));
 ```
 
-![image](https://github.com/rwjdk/TrelloDotNet/assets/7032102/b5e4fa20-6f35-4c4d-aeaa-9d2172c4b08e)
+![image](https://github.com/rwjdk/trello-dotnet/assets/7032102/b5e4fa20-6f35-4c4d-aeaa-9d2172c4b08e)

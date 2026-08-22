@@ -2,7 +2,7 @@ The [Automation Engine](Automation-Engine) has various [out-of-the box Triggers]
 
 > It is from experience more common to make [Custom Conditions](CustomAutomationConditions) and [Custom Actions](CustomAutomationActions)), but it is still doable of cause
 
-> If you think the Trigger you need so be an out-of-the-box trigger feel free to [open an issue](https://github.com/rwjdk/TrelloDotNet/issues) or [create a Pull Request](https://github.com/rwjdk/TrelloDotNet/pulls) with your custom Trigger
+> If you think the Trigger you need so be an out-of-the-box trigger feel free to [open an issue](https://github.com/rwjdk/trello-dotnet/issues) or [create a Pull Request](https://github.com/rwjdk/trello-dotnet/pulls) with your custom Trigger
 
 ### Steps to make a custom Trigger
 
@@ -36,15 +36,15 @@ Inside the `IsTriggerMetAsync` you have access to the WebhookAction (aka the JSO
 
 #### Real Examples
 To better get a sense of how `Triggers` look are here links to the various real-time implementations for inspiration:
-- Source Code: [CardCreatedTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardCreatedTrigger.cs)
-- Source Code: [CardEmailedTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardEmailedTrigger.cs)
-- Source Code: [CardMovedToBoardTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardMovedToListTrigger.cs)
-- Source Code: [CardMovedToListTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardMovedToListTrigger.cs)
-- Source Code: [CardUpdatedTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardUpdatedTrigger.cs)
-- Source Code: [CheckItemStateUpdatedOnCardTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CheckItemStateUpdatedOnCardTrigger.cs)
-- Source Code: [LabelAddedToCardTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/LabelAddedToCardTrigger.cs) |
-- Source Code: [LabelRemovedFromCardTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/LabelRemovedFromCardTrigger.cs) |
-- Source Code: [MemberAddedToCardTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/MemberAddedToCardTrigger.cs) |
-- Source Code: [MemberRemovedFromCardTrigger](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/MemberRemovedFromCardTrigger.cs)
+- Source Code: [CardCreatedTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardCreatedTrigger.cs)
+- Source Code: [CardEmailedTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardEmailedTrigger.cs)
+- Source Code: [CardMovedToBoardTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardMovedToListTrigger.cs)
+- Source Code: [CardMovedToListTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardMovedToListTrigger.cs)
+- Source Code: [CardUpdatedTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CardUpdatedTrigger.cs)
+- Source Code: [CheckItemStateUpdatedOnCardTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/CheckItemStateUpdatedOnCardTrigger.cs)
+- Source Code: [LabelAddedToCardTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/LabelAddedToCardTrigger.cs) |
+- Source Code: [LabelRemovedFromCardTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/LabelRemovedFromCardTrigger.cs) |
+- Source Code: [MemberAddedToCardTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/MemberAddedToCardTrigger.cs) |
+- Source Code: [MemberRemovedFromCardTrigger](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Triggers/MemberRemovedFromCardTrigger.cs)
 
 

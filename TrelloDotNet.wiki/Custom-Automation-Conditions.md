@@ -1,6 +1,6 @@
 The [Automation Engine](Automation-Engine) has various [out-of-the box Conditions](Automation-Engine#conditions), but there can be  cases where you wish to make your own custom condition 
 
-> If you think the Condition you need so be an out-of-the-box Condition feel free to [open an issue](https://github.com/rwjdk/TrelloDotNet/issues) or [create a Pull Request](https://github.com/rwjdk/TrelloDotNet/pulls) with your custom Condition
+> If you think the Condition you need so be an out-of-the-box Condition feel free to [open an issue](https://github.com/rwjdk/trello-dotnet/issues) or [create a Pull Request](https://github.com/rwjdk/trello-dotnet/pulls) with your custom Condition
 
 ### Steps to make a custom Condition
 
@@ -30,15 +30,15 @@ Inside the `IsConditionMetAsync` you have access to the WebhookAction (aka the J
 
 #### Real Examples
 To better get a sense of how `Conditions` look are here links to the various real-time implementations for inspiration:
-- Source Code: [CardCoverCondition](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/CardCoverCondition.cs)
-- Source Code: [CardFieldCondition](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/CardFieldCondition.cs)
-- Source Code: [ChecklistItemsCompleteCondition](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ChecklistItemsCompleteCondition.cs)
-- Source Code: [ChecklistItemsIncompleteCondition](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ChecklistItemsIncompleteCondition.cs)
-- Source Code: [ChecklistIncompleteCondition](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ChecklistIncompleteCondition.cs)
-- Source Code: [ChecklistNotStartedCondition](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ChecklistNotStartedCondition.cs)
-- Source Code: [LabelCondition](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/LabelCondition.cs)
-- Source Code: [ListCondition](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ListCondition.cs)
-- Source Code: [MemberCondition](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/MemberCondition.cs)
+- Source Code: [CardCoverCondition](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/CardCoverCondition.cs)
+- Source Code: [CardFieldCondition](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/CardFieldCondition.cs)
+- Source Code: [ChecklistItemsCompleteCondition](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ChecklistItemsCompleteCondition.cs)
+- Source Code: [ChecklistItemsIncompleteCondition](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ChecklistItemsIncompleteCondition.cs)
+- Source Code: [ChecklistIncompleteCondition](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ChecklistIncompleteCondition.cs)
+- Source Code: [ChecklistNotStartedCondition](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ChecklistNotStartedCondition.cs)
+- Source Code: [LabelCondition](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/LabelCondition.cs)
+- Source Code: [ListCondition](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/ListCondition.cs)
+- Source Code: [MemberCondition](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Conditions/MemberCondition.cs)
 
 
 

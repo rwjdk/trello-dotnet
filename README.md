@@ -7,26 +7,26 @@
 _Welcome to TrelloDotNet - A .NET implementation of the [Trello REST API](https://developer.atlassian.com/cloud/trello/rest)_
 
 [![NuGet](https://img.shields.io/badge/NuGet-blue?style=for-the-badge)](https://www.nuget.org/packages/TrelloDotNet)
-[![WIKI](https://img.shields.io/badge/Wiki-brown?style=for-the-badge)](https://github.com/rwjdk/TrelloDotNet/wiki)
-[![Changelog](https://img.shields.io/badge/-Changelog-darkgreen?style=for-the-badge)](https://github.com/rwjdk/TrelloDotNet/blob/main/Changelog.md)
+[![WIKI](https://img.shields.io/badge/Wiki-brown?style=for-the-badge)](https://github.com/rwjdk/trello-dotnet/wiki)
+[![Changelog](https://img.shields.io/badge/-Changelog-darkgreen?style=for-the-badge)](https://github.com/rwjdk/trello-dotnet/blob/main/Changelog.md)
 [![YouTube](https://img.shields.io/badge/-YouTube-darkred?style=for-the-badge)](https://www.youtube.com/playlist?list=PLhGl0l5La4saguVChJ3jmlAXqFDkmYjdC)
 [![Rest API](https://img.shields.io/badge/API_Reference-gray?style=for-the-badge)](https://developer.atlassian.com/cloud/trello/rest/)
 [![API Keys](https://img.shields.io/badge/Power--Ups_Admin-purple?style=for-the-badge)](https://trello.com/power-ups/admin/)
-[![MCP Server](https://img.shields.io/badge/MCP--Server-green?style=for-the-badge)](https://github.com/rwjdk/TrelloDotNet/wiki/TrelloDotNet-MCP-Server)
+[![MCP Server](https://img.shields.io/badge/MCP--Server-green?style=for-the-badge)](https://github.com/rwjdk/trello-dotnet/wiki/TrelloDotNet-MCP-Server)
 
 
 ## Features
-- A [TrelloClient](https://github.com/rwjdk/TrelloDotNet/wiki/TrelloClient) for CRUD operations on Trello features
-- An [Automation Engine](https://github.com/rwjdk/TrelloDotNet/wiki/Automation-Engine) and [Webhook Data Receiver](https://github.com/rwjdk/TrelloDotNet/wiki/Webhook-Data-Receiver) for handling webhook events
+- A [TrelloClient](https://github.com/rwjdk/trello-dotnet/wiki/TrelloClient) for CRUD operations on Trello features
+- An [Automation Engine](https://github.com/rwjdk/trello-dotnet/wiki/Automation-Engine) and [Webhook Data Receiver](https://github.com/rwjdk/trello-dotnet/wiki/Webhook-Data-Receiver) for handling webhook events
 
 ## Getting Started
-*To get started you can either follow the steps below or use the [TrelloDotNet MCP Server](https://github.com/rwjdk/TrelloDotNet/wiki/TrelloDotNet-MCP-Server) to let AI assist you and Vibe Code the whole thing* 8-)
+*To get started you can either follow the steps below or use the [TrelloDotNet MCP Server](https://github.com/rwjdk/trello-dotnet/wiki/TrelloDotNet-MCP-Server) to let AI assist you and Vibe Code the whole thing* 8-)
 
 1. Install the '[TrelloDotNet](https://www.nuget.org/packages/TrelloDotNet)' NuGet Package (`dotnet add package TrelloDotNet`)
-2. Retrieve your [API-Key and Token](https://youtu.be/ndLSAD3StH8) from the [PowerUps Administration](https://trello.com/power-ups/admin)
+2. Retrieve your [API Key and Token](https://youtu.be/ndLSAD3StH8) from the [Power-Ups Administration](https://trello.com/power-ups/admin)
 3. Create a new instance of the `TrelloClient` _(located in the namespace 'TrelloDotNet')_
-4. Locate your IDs of your Boards, Lists, and Cards (see video [here](https://youtu.be/es84INLIiKI) or at the end of this ReadMe)
-5. Use the TrelloClient based on the examples below and/or the [Wiki](https://github.com/rwjdk/TrelloDotNet/wiki).
+4. Locate the IDs of your Boards, Lists, and Cards (see video [here](https://youtu.be/es84INLIiKI) or at the end of this README)
+5. Use the TrelloClient based on the examples below and/or the [Wiki](https://github.com/rwjdk/trello-dotnet/wiki).
 
 ### Examples of Usage:
 
@@ -128,7 +128,7 @@ Checklist addedChecklist = await client.AddChecklistAsync("<cardId>", newCheckli
 
 ## Video Guides
 - Trello Developer Fundamentals
-  - [How to get your API-Key and Token](https://youtu.be/ndLSAD3StH8)
+  - [How to get your API Key and Token](https://youtu.be/ndLSAD3StH8)
   - [How to Find IDs on a Trello Board](https://youtu.be/es84INLIiKI)
 - TrelloDotNet
   - [How to use the TrelloDotNet NuGet Package](https://youtu.be/tf47BCkieus)
@@ -139,11 +139,11 @@ Checklist addedChecklist = await client.AddChecklistAsync("<cardId>", newCheckli
 
 ## Handy links
 - [Udemy Course](https://www.udemy.com/course/7120835)
-- [Wiki](https://github.com/rwjdk/TrelloDotNet/wiki)
-- [Changelog](https://github.com/rwjdk/TrelloDotNet/blob/main/Changelog.md)
-  - [Version 2.0 Migration Guide](https://github.com/rwjdk/TrelloDotNet/issues/51)
-- [Report an issue](https://github.com/rwjdk/TrelloDotNet/issues)
-- [Report a security concern](https://github.com/rwjdk/TrelloDotNet/security)
+- [Wiki](https://github.com/rwjdk/trello-dotnet/wiki)
+- [Changelog](https://github.com/rwjdk/trello-dotnet/blob/main/Changelog.md)
+  - [Version 2.0 Migration Guide](https://github.com/rwjdk/trello-dotnet/issues/51)
+- [Report an issue](https://github.com/rwjdk/trello-dotnet/issues)
+- [Report a security concern](https://github.com/rwjdk/trello-dotnet/security)
 - [TrelloDotNet NuGet Package](https://www.nuget.org/packages/TrelloDotNet) 
 - [Developers LinkedIn Group](https://www.linkedin.com/groups/12847286/) 
 - [Power-Up to locate IDs](https://trello.com/power-ups/646cc3622176aebf713bb7f8/api-developer-id-helper)

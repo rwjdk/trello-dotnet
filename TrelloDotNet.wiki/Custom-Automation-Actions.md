@@ -1,6 +1,6 @@
 The [Automation Engine](Automation-Engine) has various [out-of-the box Actions](Automation-Engine#actions), but there can be cases where you wish to make your own custom Actions 
 
-> If you think the Action you need so be an out-of-the-box Action feel free to [open an issue](https://github.com/rwjdk/TrelloDotNet/issues) or [create a Pull Request](https://github.com/rwjdk/TrelloDotNet/pulls) with your custom Action
+> If you think the Action you need so be an out-of-the-box Action feel free to [open an issue](https://github.com/rwjdk/trello-dotnet/issues) or [create a Pull Request](https://github.com/rwjdk/trello-dotnet/pulls) with your custom Action
 
 ### Steps to make a custom Action
 
@@ -40,18 +40,18 @@ Inside the `PerformActionAsync` you have access to the WebhookAction (aka the JS
 
 #### Real Examples
 To better get a sense of how `Actions` look are here links to the various real-time implementations for inspiration:
-- Source Code: [AddChecklistToCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddChecklistToCardAction.cs)
-- Source Code: [AddChecklistToCardIfLabelMatchAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddChecklistToCardIfLabelMatchAction.cs)
-- Source Code: [AddCommentToCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddCommentToCardAction.cs)
-- Source Code: [AddCoverOnCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddCoverOnCardAction.cs)
-- Source Code: [AddLabelsToCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddLabelsToCardAction.cs)
-- Source Code: [AddMembersToCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddMembersToCardAction.cs)
-- Source Code: [AddStickerToCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddStickerToCardAction.cs)
-- Source Code: [RemoveCardDataAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveCardDataAction.cs)
-- Source Code: [RemoveChecklistFromCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveChecklistFromCardAction.cs)
-- Source Code: [RemoveCoverFromCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveCoverFromCardAction.cs)
-- Source Code: [RemoveLabelsFromCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveLabelsFromCardAction.cs)
-- Source Code: [RemoveMembersFromCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveMembersFromCardAction.cs)
-- Source Code: [RemoveStickerFromCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveStickerFromCardAction.cs)
-- Source Code: [SetFieldsOnCardAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/SetFieldsOnCardAction.cs)
-- Source Code: [StopProcessingFurtherAction](https://github.com/rwjdk/TrelloDotNet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/StopProcessingFurtherAction.cs)
+- Source Code: [AddChecklistToCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddChecklistToCardAction.cs)
+- Source Code: [AddChecklistToCardIfLabelMatchAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddChecklistToCardIfLabelMatchAction.cs)
+- Source Code: [AddCommentToCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddCommentToCardAction.cs)
+- Source Code: [AddCoverOnCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddCoverOnCardAction.cs)
+- Source Code: [AddLabelsToCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddLabelsToCardAction.cs)
+- Source Code: [AddMembersToCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddMembersToCardAction.cs)
+- Source Code: [AddStickerToCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/AddStickerToCardAction.cs)
+- Source Code: [RemoveCardDataAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveCardDataAction.cs)
+- Source Code: [RemoveChecklistFromCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveChecklistFromCardAction.cs)
+- Source Code: [RemoveCoverFromCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveCoverFromCardAction.cs)
+- Source Code: [RemoveLabelsFromCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveLabelsFromCardAction.cs)
+- Source Code: [RemoveMembersFromCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveMembersFromCardAction.cs)
+- Source Code: [RemoveStickerFromCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/RemoveStickerFromCardAction.cs)
+- Source Code: [SetFieldsOnCardAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/SetFieldsOnCardAction.cs)
+- Source Code: [StopProcessingFurtherAction](https://github.com/rwjdk/trello-dotnet/blob/main/TrelloDotNet/TrelloDotNet/AutomationEngine/Model/Actions/StopProcessingFurtherAction.cs)

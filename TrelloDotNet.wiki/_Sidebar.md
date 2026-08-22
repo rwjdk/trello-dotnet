@@ -37,8 +37,8 @@
   - [How to Set Up (Building Blocks)](Webhook-Data-Receiver#how-to-set-up)
 
 ## Other Handy Links
-- [ReadMe](https://github.com/rwjdk/TrelloDotNet/blob/main/README.md)
-- [Changelog](https://github.com/rwjdk/TrelloDotNet/blob/main/Changelog.md)
+- [ReadMe](https://github.com/rwjdk/trello-dotnet/blob/main/README.md)
+- [Changelog](https://github.com/rwjdk/trello-dotnet/blob/main/Changelog.md)
 - [TrelloDotNet Nuget Package](https://www.nuget.org/packages/TrelloDotNet) 
 - [Developers LinkedIn Group](https://www.linkedin.com/groups/12847286/) 
 - [Power-Up to locate Ids](https://trello.com/power-ups/646cc3622176aebf713bb7f8/api-developer-id-helper)

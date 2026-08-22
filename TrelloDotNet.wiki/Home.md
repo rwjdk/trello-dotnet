@@ -2,7 +2,7 @@
 
 - If you are new to Trello, then check out this [Trello Introduction](Trello-Introduction)
 
-- If you are new to Trello API / This API Wrapper, you might want to check out the [README](https://github.com/rwjdk/TrelloDotNet/blob/main/README.md) first, and then come back here for the full details.
+- If you are new to Trello API / This API Wrapper, you might want to check out the [README](https://github.com/rwjdk/trello-dotnet/blob/main/README.md) first, and then come back here for the full details.
 
 The API consists of 3 primary features.
 
