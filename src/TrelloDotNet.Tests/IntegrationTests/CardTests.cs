@@ -13,7 +13,7 @@ using TrelloDotNet.Model.Webhook;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly Board _board = fixture.Board!;
 
@@ -952,7 +952,7 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtur
         Member tokenMemberAsync = await TrelloClient.GetTokenMemberAsync(cancellationToken: TestCancellationToken);
         List<Card>? cards = await TrelloClient.GetCardsForMemberAsync(tokenMemberAsync.Id, new GetCardOptions
         {
-            Filter = CardsFilter.All,
+            Filter = CardsFilter.Open,
             BoardFields = new BoardFields(BoardFieldsType.Name),
             ActionsTypes = new ActionTypesToInclude(WebhookActionTypes.CreateCard),
             CardFields = new CardFields(CardFieldsType.Name),

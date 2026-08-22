@@ -19,6 +19,11 @@ public abstract class TestBase
         TrelloClient = GetClient();
     }
 
+    protected TestBase(TrelloClient trelloClient)
+    {
+        TrelloClient = trelloClient;
+    }
+
     private TrelloClient GetClient()
     {
         try
@@ -58,7 +63,7 @@ public abstract class TestBase
                 }
             }
 
-            return clients[Random.Shared.Next(0, clients.Count - 1)];
+            return clients[Random.Shared.Next(clients.Count)];
         }
         catch (Exception)
         {
