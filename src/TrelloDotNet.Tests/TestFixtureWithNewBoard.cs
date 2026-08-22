@@ -12,7 +12,7 @@ public class TestFixtureWithNewBoard : TestBase, IAsyncLifetime
     public string? OrganizationId { get; set; }
     public string? OrganizationName { get; set; }
 
-    public async ValueTask InitializeAsync()
+    public virtual async ValueTask InitializeAsync()
     {
         Assert.True(TrelloClient.Options.MaxRetryCountForTokenLimitExceeded > 0);
         Assert.True(TrelloClient.Options.DelayInSecondsToWaitInTokenLimitExceededRetry > 0);
@@ -37,37 +37,48 @@ public class TestFixtureWithNewBoard : TestBase, IAsyncLifetime
         Assert.Equal(OrganizationId, Board.OrganizationId);
     }
 
-    public async ValueTask DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
+        Exception? cleanupException = null;
+        using CancellationTokenSource cleanupCancellation = new(TimeSpan.FromSeconds(30));
+
         try
-        {
-            await TrelloClient.DeleteBoardAsync(BoardId, cancellationToken: TestCancellationToken);
-        }
-        catch (Exception e)
-        {
-            Assert.Contains("Deletion of Boards are disabled via Options.AllowDeleteOfBoards (You need to enable this as a secondary confirmation that you REALLY wish to use that option as there is no going back: https://support.atlassian.com/trello/docs/deleting-a-board/)", e.Message);
-        }
-        finally
         {
             TrelloClient.Options.AllowDeleteOfBoards = true;
-            await TrelloClient.DeleteBoardAsync(BoardId, cancellationToken: TestCancellationToken);
+            if (BoardId != null)
+            {
+                await TrelloClient.DeleteBoardAsync(BoardId, cancellationToken: cleanupCancellation.Token);
+            }
+        }
+        catch (Exception e)
+        {
+            cleanupException = e;
+        }
+        finally
+        {
+            TrelloClient.Options.AllowDeleteOfBoards = false;
         }
 
         try
         {
-            await TrelloClient.DeleteOrganizationAsync(OrganizationId, cancellationToken: TestCancellationToken);
+            TrelloClient.Options.AllowDeleteOfOrganizations = true;
+            if (OrganizationId != null)
+            {
+                await TrelloClient.DeleteOrganizationAsync(OrganizationId, cancellationToken: cleanupCancellation.Token);
+            }
         }
         catch (Exception e)
         {
-            Assert.Contains("Deletion of Organizations are disabled via Options.AllowDeleteOfOrganizations (You need to enable this as a secondary confirmation that you REALLY wish to use that option as there is no going back)", e.Message);
+            cleanupException = cleanupException == null ? e : new AggregateException(cleanupException, e);
         }
         finally
         {
-            TrelloClient.Options.AllowDeleteOfOrganizations = true;
-            await TrelloClient.DeleteOrganizationAsync(OrganizationId, cancellationToken: TestCancellationToken);
+            TrelloClient.Options.AllowDeleteOfOrganizations = false;
         }
 
-        TrelloClient.Options.AllowDeleteOfBoards = false;
-        TrelloClient.Options.AllowDeleteOfOrganizations = false;
+        if (cleanupException != null)
+        {
+            throw cleanupException;
+        }
     }
 }

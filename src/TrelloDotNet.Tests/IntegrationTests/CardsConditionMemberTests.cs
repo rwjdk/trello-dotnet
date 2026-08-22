@@ -4,7 +4,7 @@ using TrelloDotNet.Model.Options.GetCardOptions;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class CardExtensionsTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class CardExtensionsTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly Board _board = fixture.Board!;
 #pragma warning disable xUnit2013 // Do not use equality check to check for collection size.

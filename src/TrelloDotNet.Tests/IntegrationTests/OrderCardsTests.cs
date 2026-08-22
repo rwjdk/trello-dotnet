@@ -4,119 +4,48 @@ using TrelloDotNet.Model.Options.GetCardOptions;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class OrderCardsTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public sealed class OrderCardsFixture : TestFixtureWithNewBoard
 {
-    private readonly Board _board = fixture.Board!;
-#pragma warning disable xUnit2013 // Do not use equality check to check for collection size.
-    [Fact]
-    public async Task OrderCards()
+    public IReadOnlyList<Card> Cards { get; private set; } = [];
+
+    public override async ValueTask InitializeAsync()
     {
-        List list1 = await AddDummyList(_board.Id, "List 1");
+        await base.InitializeAsync();
 
-        Card card1 = await AddDummyCardToList(list1, "B", start: DateTimeOffset.UtcNow, due: DateTimeOffset.UtcNow.AddDays(3));
-        await Task.Delay(1000, TestCancellationToken);
-        Card card2 = await AddDummyCardToList(list1, "X", start: DateTimeOffset.UtcNow.AddDays(1), due: DateTimeOffset.UtcNow.AddDays(2));
-        await Task.Delay(1000, TestCancellationToken);
-        Card card3 = await AddDummyCardToList(list1, "A", start: DateTimeOffset.UtcNow.AddDays(-20), due: DateTimeOffset.UtcNow.AddDays(1));
+        List list = await AddDummyList(BoardId!, "Ordering");
+        Card first = await AddDummyCardToList(list, "B", start: DateTimeOffset.UtcNow, due: DateTimeOffset.UtcNow.AddDays(3));
+        await WaitForNextTrelloTimestampAsync(first.Created);
+        Card second = await AddDummyCardToList(list, "X", start: DateTimeOffset.UtcNow.AddDays(1), due: DateTimeOffset.UtcNow.AddDays(2));
+        await WaitForNextTrelloTimestampAsync(second.Created);
+        Card third = await AddDummyCardToList(list, "A", start: DateTimeOffset.UtcNow.AddDays(-20), due: DateTimeOffset.UtcNow.AddDays(1));
 
-        // ReSharper disable once JoinDeclarationAndInitializer
-        List<Card> cards;
+        Cards = [first, second, third];
+    }
+}
 
-        //********************************************************************************************************
-
-        CardFields cardFields = new CardFields(CardFieldsType.Name);
-        cards = await TrelloClient.GetCardsOnBoardAsync(_board.Id, new GetCardOptions
+public class OrderCardsTests(OrderCardsFixture fixture) : TestBase(fixture.TrelloClient), IClassFixture<OrderCardsFixture>
+{
+    [Theory]
+    [InlineData(CardsOrderBy.CreateDateAsc, 0, 1, 2)]
+    [InlineData(CardsOrderBy.CreateDateDesc, 2, 1, 0)]
+    [InlineData(CardsOrderBy.NameAsc, 2, 0, 1)]
+    [InlineData(CardsOrderBy.NameDesc, 1, 0, 2)]
+    [InlineData(CardsOrderBy.DueDateAsc, 2, 1, 0)]
+    [InlineData(CardsOrderBy.DueDateDesc, 0, 1, 2)]
+    [InlineData(CardsOrderBy.StartDateAsc, 2, 0, 1)]
+    [InlineData(CardsOrderBy.StartDateDesc, 1, 0, 2)]
+    public async Task OrdersCardsBySelectedField(CardsOrderBy orderBy, int first, int second, int third)
+    {
+        List<Card> cards = await TrelloClient.GetCardsOnBoardAsync(fixture.BoardId!, new GetCardOptions
         {
-            CardFields = cardFields,
-            OrderBy = CardsOrderBy.CreateDateAsc
+            CardFields = new CardFields(CardFieldsType.Name),
+            OrderBy = orderBy
         }, cancellationToken: TestCancellationToken);
 
-        Assert.Equal(card1.Id, cards[0].Id);
-        Assert.Equal(card2.Id, cards[1].Id);
-        Assert.Equal(card3.Id, cards[2].Id);
-
-        //********************************************************************************************************
-
-        cards = await TrelloClient.GetCardsOnBoardAsync(_board.Id, new GetCardOptions
-        {
-            CardFields = cardFields,
-            OrderBy = CardsOrderBy.CreateDateDesc
-        }, cancellationToken: TestCancellationToken);
-
-        Assert.Equal(card3.Id, cards[0].Id);
-        Assert.Equal(card2.Id, cards[1].Id);
-        Assert.Equal(card1.Id, cards[2].Id);
-
-        //********************************************************************************************************
-
-        cards = await TrelloClient.GetCardsOnBoardAsync(_board.Id, new GetCardOptions
-        {
-            CardFields = cardFields,
-            OrderBy = CardsOrderBy.NameAsc
-        }, cancellationToken: TestCancellationToken);
-
-        Assert.Equal(card3.Id, cards[0].Id);
-        Assert.Equal(card1.Id, cards[1].Id);
-        Assert.Equal(card2.Id, cards[2].Id);
-
-        //********************************************************************************************************
-
-        cards = await TrelloClient.GetCardsOnBoardAsync(_board.Id, new GetCardOptions
-        {
-            CardFields = cardFields,
-            OrderBy = CardsOrderBy.NameDesc
-        }, cancellationToken: TestCancellationToken);
-
-        Assert.Equal(card2.Id, cards[0].Id);
-        Assert.Equal(card1.Id, cards[1].Id);
-        Assert.Equal(card3.Id, cards[2].Id);
-
-        //********************************************************************************************************
-
-        cards = await TrelloClient.GetCardsOnBoardAsync(_board.Id, new GetCardOptions
-        {
-            CardFields = cardFields,
-            OrderBy = CardsOrderBy.DueDateAsc
-        }, cancellationToken: TestCancellationToken);
-
-        Assert.Equal(card3.Id, cards[0].Id);
-        Assert.Equal(card2.Id, cards[1].Id);
-        Assert.Equal(card1.Id, cards[2].Id);
-
-        //********************************************************************************************************
-
-        cards = await TrelloClient.GetCardsOnBoardAsync(_board.Id, new GetCardOptions
-        {
-            CardFields = cardFields,
-            OrderBy = CardsOrderBy.DueDateDesc
-        }, cancellationToken: TestCancellationToken);
-
-        Assert.Equal(card1.Id, cards[0].Id);
-        Assert.Equal(card2.Id, cards[1].Id);
-        Assert.Equal(card3.Id, cards[2].Id);
-
-        //********************************************************************************************************
-
-        cards = await TrelloClient.GetCardsOnBoardAsync(_board.Id, new GetCardOptions
-        {
-            CardFields = cardFields,
-            OrderBy = CardsOrderBy.StartDateAsc
-        }, cancellationToken: TestCancellationToken);
-
-        Assert.Equal(card3.Id, cards[0].Id);
-        Assert.Equal(card1.Id, cards[1].Id);
-        Assert.Equal(card2.Id, cards[2].Id);
-
-        //********************************************************************************************************
-
-        cards = await TrelloClient.GetCardsOnBoardAsync(_board.Id, new GetCardOptions
-        {
-            CardFields = cardFields,
-            OrderBy = CardsOrderBy.StartDateDesc
-        }, cancellationToken: TestCancellationToken);
-
-        Assert.Equal(card2.Id, cards[0].Id);
-        Assert.Equal(card1.Id, cards[1].Id);
-        Assert.Equal(card3.Id, cards[2].Id);
+        Assert.Collection(
+            cards,
+            card => Assert.Equal(fixture.Cards[first].Id, card.Id),
+            card => Assert.Equal(fixture.Cards[second].Id, card.Id),
+            card => Assert.Equal(fixture.Cards[third].Id, card.Id));
     }
 }

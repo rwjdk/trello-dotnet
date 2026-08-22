@@ -11,7 +11,7 @@ using Label = TrelloDotNet.Model.Label;
 
 namespace TrelloDotNet.Tests.AutomationEngineTests.ActionTests;
 
-public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly Board _board = fixture.Board!;
 

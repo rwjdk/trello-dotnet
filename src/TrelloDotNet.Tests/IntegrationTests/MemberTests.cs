@@ -4,8 +4,10 @@ using TrelloDotNet.Model.Options.GetMemberOptions;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class MemberTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class MemberTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
+    private const string TestMemberId = "69062db07766a797a98c6a13";
+    private const string TestMemberEmail = "ai@rwj.dk";
     private readonly Board _board = fixture.Board!;
     private readonly Organization _organization = fixture.Organization!;
 
@@ -53,32 +55,62 @@ public class MemberTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     }
 
     [Fact]
-    public async Task AddRemoveChangeMemberOnBoard()
+    public async Task AddsAndRemovesMemberFromBoard()
     {
-        const string memberId = "69062db07766a797a98c6a13"; //Test_user ai@rwj.dk
-        await TrelloClient.AddMemberToBoardAsync(_board.Id, memberId, MembershipType.Normal, cancellationToken: TestCancellationToken);
+        await TrelloClient.AddMemberToBoardAsync(_board.Id, TestMemberId, MembershipType.Normal, cancellationToken: TestCancellationToken);
+        try
+        {
+            List<Member> members = await TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
+            Assert.Contains(members, member => member.Id == TestMemberId);
+        }
+        finally
+        {
+            await TrelloClient.RemoveMemberFromBoardAsync(_board.Id, TestMemberId, cancellationToken: TestCancellationToken);
+        }
 
-        List<Member>? members = await TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
-        Assert.Contains(members, x => x.Id == memberId);
+        List<Member> membersAfterRemoval = await EventuallyAsync(
+            () => TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken),
+            members => members.All(member => member.Id != TestMemberId));
+        Assert.DoesNotContain(membersAfterRemoval, member => member.Id == TestMemberId);
+    }
 
-        List<Membership>? memberships = await TrelloClient.GetMembershipsOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
-        Assert.Contains(memberships, x => x.MemberId == memberId && x.MemberType == MembershipType.Normal);
-        Membership membership = memberships.Single(x => x.MemberId == memberId && x.MemberType == MembershipType.Normal);
+    [Fact]
+    public async Task UpdatesMembershipTypeOnBoard()
+    {
+        await TrelloClient.AddMemberToBoardAsync(_board.Id, TestMemberId, MembershipType.Normal, cancellationToken: TestCancellationToken);
+        try
+        {
+            List<Membership> memberships = await TrelloClient.GetMembershipsOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
+            Membership membership = Assert.Single(memberships, item => item.MemberId == TestMemberId);
 
-        await TrelloClient.UpdateMembershipTypeOfMemberOnBoardAsync(_board.Id, membership.Id, MembershipType.Admin, cancellationToken: TestCancellationToken);
+            await TrelloClient.UpdateMembershipTypeOfMemberOnBoardAsync(_board.Id, membership.Id, MembershipType.Admin, cancellationToken: TestCancellationToken);
 
-        List<Membership>? membershipsAfter = await TrelloClient.GetMembershipsOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
-        Assert.Contains(membershipsAfter, x => x.MemberId == memberId && x.MemberType == MembershipType.Admin);
+            List<Membership> updatedMemberships = await EventuallyAsync(
+                () => TrelloClient.GetMembershipsOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken),
+                current => current.Any(item => item.MemberId == TestMemberId && item.MemberType == MembershipType.Admin));
+            Assert.Contains(updatedMemberships, item => item.MemberId == TestMemberId && item.MemberType == MembershipType.Admin);
+        }
+        finally
+        {
+            await TrelloClient.RemoveMemberFromBoardAsync(_board.Id, TestMemberId, cancellationToken: TestCancellationToken);
+        }
+    }
 
-        await TrelloClient.RemoveMemberFromBoardAsync(_board.Id, memberId, cancellationToken: TestCancellationToken);
-
-        List<Member>? membersAfter = await TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
-        Assert.True(membersAfter.All(x => x.Id != memberId));
-
-        await TrelloClient.InviteMemberToBoardViaEmailAsync(_board.Id, "ai@rwj.dk", MembershipType.Normal, cancellationToken: TestCancellationToken);
-
-        List<Member>? membersAfterInvite = await TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
-        Assert.Contains(membersAfterInvite, x => x.Id == memberId);
+    [Fact]
+    public async Task InvitesMemberToBoardByEmail()
+    {
+        await TrelloClient.InviteMemberToBoardViaEmailAsync(_board.Id, TestMemberEmail, MembershipType.Normal, cancellationToken: TestCancellationToken);
+        try
+        {
+            List<Member> members = await EventuallyAsync(
+                () => TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken),
+                current => current.Any(member => member.Id == TestMemberId));
+            Assert.Contains(members, member => member.Id == TestMemberId);
+        }
+        finally
+        {
+            await TrelloClient.RemoveMemberFromBoardAsync(_board.Id, TestMemberId, cancellationToken: TestCancellationToken);
+        }
     }
 
     [Fact]

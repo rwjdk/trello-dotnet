@@ -33,42 +33,102 @@ public abstract class TestBase
                 .Build();
 
             List<TrelloClient> clients = [];
-            string? apiKey = config["TrelloApiKey"];
-            string? token = config["TrelloToken"];
+            string? apiKey = GetSetting(config, "TrelloApiKey");
+            string? token = GetSetting(config, "TrelloToken");
             if (!string.IsNullOrWhiteSpace(apiKey) && !string.IsNullOrWhiteSpace(token))
             {
-                TrelloClientOptions trelloClientOptions = new TrelloClientOptions
-                {
-                    MaxRetryCountForTokenLimitExceeded = 10,
-                    DelayInSecondsToWaitInTokenLimitExceededRetry = 3,
-                };
-                clients.Add(new TrelloClient(apiKey, token, trelloClientOptions, new HttpClient
-                {
-                    Timeout = TimeSpan.FromMinutes(5)
-                }));
+                clients.Add(CreateClient(apiKey, token));
             }
 
             for (int i = 1; i < 10; i++)
             {
-                apiKey = config["TrelloApiKey" + (i + 1)];
-                token = config["TrelloToken" + (i + 1)];
+                apiKey = GetSetting(config, "TrelloApiKey" + (i + 1));
+                token = GetSetting(config, "TrelloToken" + (i + 1));
                 if (!string.IsNullOrWhiteSpace(apiKey) && !string.IsNullOrWhiteSpace(token))
                 {
-                    TrelloClientOptions trelloClientOptions = new TrelloClientOptions
-                    {
-                        MaxRetryCountForTokenLimitExceeded = 10,
-                        DelayInSecondsToWaitInTokenLimitExceededRetry = 3
-                    };
-                    clients.Add(new TrelloClient(apiKey, token, trelloClientOptions));
+                    clients.Add(CreateClient(apiKey, token));
                 }
+            }
+
+            if (clients.Count == 0)
+            {
+                throw new InvalidOperationException("No complete Trello API key and token pairs were configured.");
             }
 
             return clients[Random.Shared.Next(clients.Count)];
         }
-        catch (Exception)
+        catch (Exception exception)
         {
-            throw new Exception("In order to run Unit-tests you need to add a user secrets 'TrelloApiKey' and 'TrelloToken' (both strings). See more here: https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-7.0&tabs=windows#manage-user-secrets-with-visual-studio");
+            throw new InvalidOperationException("In order to run integration tests you need to add user secrets 'TrelloApiKey' and 'TrelloToken' (both strings). See more here: https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-7.0&tabs=windows#manage-user-secrets-with-visual-studio", exception);
         }
+    }
+
+    private static string? GetSetting(IConfiguration configuration, string name)
+    {
+        return Environment.GetEnvironmentVariable(name) ?? configuration[name];
+    }
+
+    private static TrelloClient CreateClient(string apiKey, string token)
+    {
+        TrelloClientOptions trelloClientOptions = new TrelloClientOptions
+        {
+            MaxRetryCountForTokenLimitExceeded = 10,
+            DelayInSecondsToWaitInTokenLimitExceededRetry = 3
+        };
+
+        return new TrelloClient(apiKey, token, trelloClientOptions, new HttpClient
+        {
+            Timeout = TimeSpan.FromMinutes(5)
+        });
+    }
+
+    protected async Task<T> EventuallyAsync<T>(Func<Task<T>> action, Func<T, bool> condition, TimeSpan? timeout = null)
+    {
+        DateTimeOffset deadline = DateTimeOffset.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(10));
+        T result;
+
+        do
+        {
+            result = await action();
+            if (condition(result))
+            {
+                return result;
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(100), TestCancellationToken);
+        } while (DateTimeOffset.UtcNow < deadline);
+
+        throw new TimeoutException($"The expected state was not observed within {timeout ?? TimeSpan.FromSeconds(10)}.");
+    }
+
+    protected async Task<T> RetryAsync<T>(Func<Task<T>> action, int maxAttempts = 3)
+    {
+        if (maxAttempts < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxAttempts));
+        }
+
+        for (int attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (Exception) when (attempt < maxAttempts && !TestCancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(200 * attempt), TestCancellationToken);
+            }
+        }
+    }
+
+    protected async Task WaitForNextTrelloTimestampAsync(DateTimeOffset? previousTimestamp)
+    {
+        if (!previousTimestamp.HasValue)
+        {
+            return;
+        }
+
+        await Task.Delay(TimeSpan.FromMilliseconds(1100), TestCancellationToken);
     }
 
     protected async Task<List> AddDummyList(string boardId, string? name = null)

@@ -3,7 +3,7 @@ using TrelloDotNet.Model.Search;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class SearchTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class SearchTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly Board _board = fixture.Board!;
 

@@ -3,7 +3,7 @@ using TrelloDotNet.Model.Webhook;
 namespace TrelloDotNet.Tests.IntegrationTests;
 
 [Collection("Webhook Management")] //In own collection to not overlap other tests
-public class WebhookManagementTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class WebhookManagementTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly string? _boardId = fixture.BoardId;
 

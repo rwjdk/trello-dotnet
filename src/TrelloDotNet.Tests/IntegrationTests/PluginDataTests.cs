@@ -2,7 +2,7 @@ using TrelloDotNet.Model;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class PluginDataTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class PluginDataTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly Board _board = fixture.Board!;
 

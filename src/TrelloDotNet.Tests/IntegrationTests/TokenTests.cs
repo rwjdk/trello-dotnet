@@ -5,7 +5,7 @@ using TrelloDotNet.Model.Options.GetOrganizationOptions;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class TokenTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class TokenTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly Board _board = fixture.Board!;
     private readonly Organization _organization = fixture.Organization!;

@@ -7,7 +7,7 @@ using TrelloDotNet.Model.Options.GetListOptions;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class BatchTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class BatchTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly string _boardId = fixture.BoardId!;
 

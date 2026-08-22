@@ -13,7 +13,7 @@ using TrelloDotNet.Model.Webhook;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
+public class CardAttachmentTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly Board _board = fixture.Board!;
 
@@ -23,24 +23,7 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
         Card card = await AddDummyCard(_board.Id, "Attachments");
         Attachment att1 = await TrelloClient.AddAttachmentToCardAsync(card.Id, new AttachmentUrlLink("https://www.rwj.dk", "Some webpage URL"), cancellationToken: TestCancellationToken);
 
-        Attachment att2;
-        try
-        {
-            att2 = await AddImageAttachment(card);
-        }
-        catch
-        {
-            try
-            {
-                await Task.Delay(1000, TestCancellationToken);
-                att2 = await AddImageAttachment(card);
-            }
-            catch
-            {
-                await Task.Delay(1000, TestCancellationToken);
-                att2 = await AddImageAttachment(card);
-            }
-        }
+        Attachment att2 = await RetryAsync(() => AddImageAttachment(card));
 
         Card cardAfterAttachments = await TrelloClient.GetCardAsync(card.Id, new GetCardOptions
         {
@@ -82,7 +65,7 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
 
     private async Task<Attachment> AddImageAttachment(Card card)
     {
-        await using Stream stream = File.Open("TestData" + Path.DirectorySeparatorChar + "TestImage.png", FileMode.Open);
+        await using Stream stream = File.Open("TestData" + Path.DirectorySeparatorChar + "TestImage.png", FileMode.Open, FileAccess.Read, FileShare.Read);
         AttachmentFileUpload attachmentFileUpload = new AttachmentFileUpload(stream, "MyFileName.png", "SomeName");
         Attachment att2 = await TrelloClient.AddAttachmentToCardAsync(card.Id, attachmentFileUpload, true, cancellationToken: TestCancellationToken);
         return att2;
@@ -113,6 +96,12 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
         Assert.Contains(attachments, x => x.Id == addedTopAttachment.Id);
         Assert.Contains(attachments, x => x.Id == addedBottomAttachment.Id);
     }
+
+}
+
+public class CardCreationTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
+{
+    private readonly Board _board = fixture.Board!;
 
     [Fact]
     public async Task GetCard()
@@ -218,7 +207,7 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
         List? list = await TrelloClient.AddListAsync(new List("List for Card Tests", _board.Id), cancellationToken: TestCancellationToken);
         Member? member = (await TrelloClient.GetMembersOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken)).First();
         List<Label>? allLabelsOnBoard = await TrelloClient.GetLabelsOfBoardAsync(_board.Id, cancellationToken: TestCancellationToken);
-        await using Stream stream = File.Open("TestData" + Path.DirectorySeparatorChar + "TestImage.png", FileMode.Open);
+        await using Stream stream = File.Open("TestData" + Path.DirectorySeparatorChar + "TestImage.png", FileMode.Open, FileAccess.Read, FileShare.Read);
         await TrelloClient.AddCardAsync(new AddCardOptions
         {
             //Mandatory options
@@ -354,6 +343,10 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
         Assert.Equal(list.Id, separatorAtPosition.ListId);
     }
 
+}
+
+public class CardChecklistTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
+{
     [Fact]
     public async Task Checklists()
     {
@@ -418,11 +411,11 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
         List<Checklist>? checklistsNow = await TrelloClient.GetChecklistsOnBoardAsync(boardUnderTest.Id, cancellationToken: TestCancellationToken);
         Assert.Equal(3, checklistsNow.Count);
 
-        await Task.Delay(1000, TestCancellationToken);
         Checklist checklist = checklistsNow[0];
         await TrelloClient.DeleteChecklistItemAsync(checklist.Id, checklist.Items[0].Id, TestCancellationToken);
-        await Task.Delay(1000, TestCancellationToken);
-        List<Checklist>? checklistsNowAfterOneDelete = await TrelloClient.GetChecklistsOnBoardAsync(boardUnderTest.Id, cancellationToken: TestCancellationToken);
+        List<Checklist> checklistsNowAfterOneDelete = await EventuallyAsync(
+            () => TrelloClient.GetChecklistsOnBoardAsync(boardUnderTest.Id, cancellationToken: TestCancellationToken),
+            current => current.First(x => x.Id == checklist.Id).Items.Count == checklist.Items.Count - 1);
         Assert.Equal(checklist.Items.Count - 1, checklistsNowAfterOneDelete.First(x => x.Id == checklist.Id).Items.Count);
 
         await TrelloClient.DeleteChecklistAsync(addedChecklist.Id, TestCancellationToken);
@@ -437,6 +430,12 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
         Checklist updateChecklist = await TrelloClient.UpdateChecklistAsync(checklistsNow2[0].Id, "SomethingNew", NamedPosition.Bottom, TestCancellationToken);
         Assert.Equal("SomethingNew", updateChecklist.Name);
     }
+
+}
+
+public class CardLifecycleTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
+{
+    private readonly Board _board = fixture.Board!;
 
     [Fact]
     public async Task Delete()
@@ -609,6 +608,12 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
         ];
     }
 
+}
+
+public class CardMemberAndLabelTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
+{
+    private readonly Board _board = fixture.Board!;
+
     [Fact]
     public async Task AddRemoveLabels()
     {
@@ -669,6 +674,12 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
 
         await TrelloClient.DeleteAsync($"cards/{customDeleteCard.Id}", cancellationToken: TestCancellationToken);
     }
+
+}
+
+public class CardInteractionTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
+{
+    private readonly Board _board = fixture.Board!;
 
     [Fact]
     public async Task Stickers()
@@ -823,6 +834,12 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
         Card? removeCoverFromCardAsync = await TrelloClient.RemoveCoverFromCardAsync(updateCoverOnCardAsync.Id, cancellationToken: TestCancellationToken);
         Assert.Null(removeCoverFromCardAsync.Cover.Color);
     }
+
+}
+
+public class CardQueryTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
+{
+    private readonly Board _board = fixture.Board!;
 
     [Fact]
     public async Task MoveCards()
@@ -988,6 +1005,12 @@ public class CardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.Trell
             Assert.NotNull(card.Attachments);
         }
     }
+
+}
+
+public class CardBoardTransferTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
+{
+    private readonly Board _board = fixture.Board!;
 
     [Theory]
     [InlineData(false, false, MoveCardToBoardOptionsLabelOptions.MigrateToLabelsOfSameNameAndColorAndCreateMissing, MoveCardToBoardOptionsMemberOptions.KeepMembersAlsoOnNewBoardAndRemoveRest)]

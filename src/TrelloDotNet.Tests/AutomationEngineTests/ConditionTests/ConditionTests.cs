@@ -7,7 +7,7 @@ using TrelloDotNet.Model.Webhook;
 
 namespace TrelloDotNet.Tests.AutomationEngineTests.ConditionTests;
 
-public class ConditionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class ConditionTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly Board _board = fixture.Board!;
 

@@ -3,7 +3,7 @@ using TrelloDotNet.Model.Options.AddCardOptions;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class BoardMultiTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class BoardMultiTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly string? _boardId = fixture.BoardId;
     private readonly string? _organizationId = fixture.OrganizationId;

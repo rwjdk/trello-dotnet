@@ -11,7 +11,7 @@ using TrelloDotNet.Model.Webhook;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
 
-public class BoardTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixture<TestFixtureWithNewBoard>
+public class BoardTests(TestFixtureWithNewBoard fixture) : TestBase(fixture.TrelloClient), IClassFixture<TestFixtureWithNewBoard>
 {
     private readonly string _boardId = fixture.BoardId!;
     private readonly string _boardName = fixture.BoardName!;

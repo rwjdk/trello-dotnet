@@ -6,6 +6,10 @@ on:
   push:
     branches: [ "main" ]
 
+concurrency:
+  group: trello-api-integration-tests
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,29 +25,27 @@ jobs:
       run: dotnet restore TrelloDotNet.sln
     - name: Build
       run: dotnet build --configuration Release --no-restore
-    - name: SetUserSecretsTrelloApiKey        
-      run: dotnet user-secrets set TrelloApiKey ${{ secrets.TRELLOAPIKEY }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj
-    - name: SetUserSecretsTrelloApiKey2        
-      run: dotnet user-secrets set TrelloApiKey2 ${{ secrets.TRELLOAPIKEY2 }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj
-    - name: SetUserSecretsTrelloApiKey3        
-      run: dotnet user-secrets set TrelloApiKey3 ${{ secrets.TRELLOAPIKEY3 }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj
-    - name: SetUserSecretsTrelloApiKey4        
-      run: dotnet user-secrets set TrelloApiKey4 ${{ secrets.TRELLOAPIKEY4 }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj
-    - name: SetUserSecretsTrelloApiKey5        
-      run: dotnet user-secrets set TrelloApiKey5 ${{ secrets.TRELLOAPIKEY5 }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj      
-    - name: SetUserSecretsTrelloToken        
-      run: dotnet user-secrets set TrelloToken ${{ secrets.TRELLOTOKEN }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj      
-    - name: SetUserSecretsTrelloToken2        
-      run: dotnet user-secrets set TrelloToken2 ${{ secrets.TRELLOTOKEN2 }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj      
-    - name: SetUserSecretsTrelloToken3        
-      run: dotnet user-secrets set TrelloToken3 ${{ secrets.TRELLOTOKEN3 }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj      
-    - name: SetUserSecretsTrelloToken4        
-      run: dotnet user-secrets set TrelloToken4 ${{ secrets.TRELLOTOKEN4 }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj      
-    - name: SetUserSecretsTrelloToken5        
-      run: dotnet user-secrets set TrelloToken5 ${{ secrets.TRELLOTOKEN5 }} --project src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj            
-    - name: Test      
-      run: dotnet test --configuration Release --no-build --verbosity normal --p:CollectCoverage=true --p:CoverletOutput=TestResults/ --p:CoverletOutputFormat=lcov --p:ExcludeByAttribute=ExcludeFromCodeCoverage
+    - name: Test
+      run: dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" --results-directory TestResults --p:CollectCoverage=true --p:CoverletOutput=TestResults/ --p:CoverletOutputFormat=lcov --p:ExcludeByAttribute=ExcludeFromCodeCoverage
       working-directory: src/TrelloDotNet.Tests
+      env:
+        TrelloApiKey: ${{ secrets.TRELLOAPIKEY }}
+        TrelloApiKey2: ${{ secrets.TRELLOAPIKEY2 }}
+        TrelloApiKey3: ${{ secrets.TRELLOAPIKEY3 }}
+        TrelloApiKey4: ${{ secrets.TRELLOAPIKEY4 }}
+        TrelloApiKey5: ${{ secrets.TRELLOAPIKEY5 }}
+        TrelloToken: ${{ secrets.TRELLOTOKEN }}
+        TrelloToken2: ${{ secrets.TRELLOTOKEN2 }}
+        TrelloToken3: ${{ secrets.TRELLOTOKEN3 }}
+        TrelloToken4: ${{ secrets.TRELLOTOKEN4 }}
+        TrelloToken5: ${{ secrets.TRELLOTOKEN5 }}
+    - name: Upload test diagnostics
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: src/TrelloDotNet.Tests/TestResults
+        retention-days: 7
     - name: Publish coverage report to coveralls.io   
       uses: coverallsapp/github-action@master   
       with:
