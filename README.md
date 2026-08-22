@@ -1,7 +1,7 @@
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rwjdk/TrelloDotNet/Build.yml?style=for-the-badge)](https://github.com/rwjdk/TrelloDotNet/actions)
-[![GitHub Issues or Pull Requests by label](https://img.shields.io/github/issues/rwjdk/TrelloDotNet/bug?style=for-the-badge&label=Bugs)](https://github.com/rwjdk/TrelloDotNet/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug)
-[![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/rwjdk/TrelloDotNet?style=for-the-badge)](https://github.com/rwjdk/TrelloDotNet/network/dependencies)
-[![Coveralls](https://img.shields.io/coverallsCoverage/github/rwjdk/TrelloDotNet?style=for-the-badge)](https://coveralls.io/github/rwjdk/TrelloDotNet)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rwjdk/trello-dotnet/Build.yml?style=for-the-badge)](https://github.com/rwjdk/trello-dotnet/actions)
+[![GitHub Issues or Pull Requests by label](https://img.shields.io/github/issues/rwjdk/trello-dotnet/bug?style=for-the-badge&label=Bugs)](https://github.com/rwjdk/trello-dotnet/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug)
+[![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/rwjdk/trello-dotnet?style=for-the-badge)](https://github.com/rwjdk/trello-dotnet/network/dependencies)
+[![Coveralls](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fcoveralls.io%2Frepos%2Fgithub%2Frwjdk%2Ftrello-dotnet%2Fbadge.svg%3Fbranch%3Dmain&query=%28%2F%2F%2A%5Blocal-name%28%29%3D%22text%22%5D%29%5Blast%28%29%5D&label=coverage&color=brightgreen&style=for-the-badge)](https://coveralls.io/github/rwjdk/trello-dotnet?branch=main)
 
 # TrelloDotNet
 _Welcome to TrelloDotNet - A .NET implementation of the [Trello REST API](https://developer.atlassian.com/cloud/trello/rest)_
