@@ -13,7 +13,7 @@
 		<PackageProjectUrl>https://github.com/rwjdk/trello-dotnet/wiki</PackageProjectUrl>
 		<PackageIcon>trello.png</PackageIcon>
 		<PackageTags>trello api .NET</PackageTags>
-		<Version>2.8.2</Version>
+		<Version>2.8.3</Version>
 		<Company>RWJDK</Company>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>
