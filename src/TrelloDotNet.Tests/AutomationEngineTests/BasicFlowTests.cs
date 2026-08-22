@@ -13,9 +13,9 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task TrueTrigger()
     {
-        var trigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController(trigger, [], [new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysTrueTrigger trigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [], [new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(2, result.AutomationsProcessed);
         Assert.Equal(0, result.AutomationsSkipped);
         Assert.Equal(2, result.ActionsExecuted);
@@ -28,10 +28,10 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task TrueTriggersTrueFalse()
     {
-        var trueTrigger = new AlwaysTrueTrigger();
-        var falseTrigger = new AlwaysFalseTrigger();
-        var automationController = CreateAutomationController([trueTrigger, falseTrigger], [], [new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysTrueTrigger trueTrigger = new AlwaysTrueTrigger();
+        AlwaysFalseTrigger falseTrigger = new AlwaysFalseTrigger();
+        AutomationController automationController = CreateAutomationController([trueTrigger, falseTrigger], [], [new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(2, result.AutomationsProcessed);
         Assert.Equal(0, result.AutomationsSkipped);
         Assert.Equal(2, result.ActionsExecuted);
@@ -44,10 +44,10 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task TrueTriggersFalseTrue()
     {
-        var falseTrigger = new AlwaysFalseTrigger();
-        var trueTrigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController([falseTrigger, trueTrigger], [], [new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysFalseTrigger falseTrigger = new AlwaysFalseTrigger();
+        AlwaysTrueTrigger trueTrigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController([falseTrigger, trueTrigger], [], [new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(2, result.AutomationsProcessed);
         Assert.Equal(0, result.AutomationsSkipped);
         Assert.Equal(2, result.ActionsExecuted);
@@ -60,9 +60,9 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task SkipAction()
     {
-        var trigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController(trigger, [], [new SkipAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysTrueTrigger trigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [], [new SkipAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(2, result.AutomationsProcessed);
         Assert.Equal(0, result.AutomationsSkipped);
         Assert.Equal(0, result.ActionsExecuted);
@@ -72,9 +72,9 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task TrueTriggerFalseCondition()
     {
-        var trigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController(trigger, [new AlwaysFalseCondition()], [new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysTrueTrigger trigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [new AlwaysFalseCondition()], [new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(0, result.AutomationsProcessed);
         Assert.Equal(2, result.AutomationsSkipped);
         Assert.Equal(0, result.ActionsExecuted);
@@ -84,9 +84,9 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task TrueTriggerTrueCondition()
     {
-        var trigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController(trigger, [new AlwaysTrueCondition()], [new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysTrueTrigger trigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [new AlwaysTrueCondition()], [new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(2, result.AutomationsProcessed);
         Assert.Equal(0, result.AutomationsSkipped);
         Assert.Equal(2, result.ActionsExecuted);
@@ -96,9 +96,9 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task TrueTrigger2TrueConditions()
     {
-        var trigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController(trigger, [new AlwaysTrueCondition(), new AlwaysTrueCondition()], [new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysTrueTrigger trigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [new AlwaysTrueCondition(), new AlwaysTrueCondition()], [new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(2, result.AutomationsProcessed);
         Assert.Equal(0, result.AutomationsSkipped);
         Assert.Equal(2, result.ActionsExecuted);
@@ -108,9 +108,9 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task TrueTrigger2ConditionsOneTrueAndOneFalse()
     {
-        var trigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController(trigger, [new AlwaysTrueCondition(), new AlwaysFalseCondition()], [new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysTrueTrigger trigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [new AlwaysTrueCondition(), new AlwaysFalseCondition()], [new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(0, result.AutomationsProcessed);
         Assert.Equal(2, result.AutomationsSkipped);
         Assert.Equal(0, result.ActionsExecuted);
@@ -120,9 +120,9 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task FalseTrigger()
     {
-        var triggeer = new AlwaysFalseTrigger();
-        var automationController = CreateAutomationController(triggeer, [], [new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysFalseTrigger triggeer = new AlwaysFalseTrigger();
+        AutomationController automationController = CreateAutomationController(triggeer, [], [new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(0, result.AutomationsProcessed);
         Assert.Equal(2, result.AutomationsSkipped);
         Assert.Equal(0, result.ActionsExecuted);
@@ -132,10 +132,10 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task FalseTriggers()
     {
-        var falseTrigger1 = new AlwaysFalseTrigger();
-        var falseTrigger2 = new AlwaysFalseTrigger();
-        var automationController = CreateAutomationController([falseTrigger1, falseTrigger2], [], [new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysFalseTrigger falseTrigger1 = new AlwaysFalseTrigger();
+        AlwaysFalseTrigger falseTrigger2 = new AlwaysFalseTrigger();
+        AutomationController automationController = CreateAutomationController([falseTrigger1, falseTrigger2], [], [new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(0, result.AutomationsProcessed);
         Assert.Equal(2, result.AutomationsSkipped);
         Assert.Equal(0, result.ActionsExecuted);
@@ -145,9 +145,9 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task TrueTriggerAndCondition()
     {
-        var trigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController(trigger, [new AlwaysTrueCondition()], [new DummyAction(), new DummyAction()]);
-        var result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
+        AlwaysTrueTrigger trigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [new AlwaysTrueCondition()], [new DummyAction(), new DummyAction()]);
+        ProcessingResult result = await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json")));
         Assert.Equal(2, result.AutomationsProcessed);
         Assert.Equal(0, result.AutomationsSkipped);
         Assert.Equal(4, result.ActionsExecuted);
@@ -157,24 +157,24 @@ public class BasicFlowTests : TestBase
     [Fact]
     public async Task ExceptionTrigger()
     {
-        var trigger = new ExceptionTrigger();
-        var automationController = CreateAutomationController(trigger, [], [new ExceptionAction()]);
+        ExceptionTrigger trigger = new ExceptionTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [], [new ExceptionAction()]);
         await Assert.ThrowsAsync<AutomationException>(async () => await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json"))));
     }
 
     [Fact]
     public async Task ExceptionCondition()
     {
-        var trigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController(trigger, [new ExceptionCondition()], [new ExceptionAction()]);
+        AlwaysTrueTrigger trigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [new ExceptionCondition()], [new ExceptionAction()]);
         await Assert.ThrowsAsync<AutomationException>(async () => await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json"))));
     }
 
     [Fact]
     public async Task ExceptionAction()
     {
-        var trigger = new AlwaysTrueTrigger();
-        var automationController = CreateAutomationController(trigger, [], [new ExceptionAction()]);
+        AlwaysTrueTrigger trigger = new AlwaysTrueTrigger();
+        AutomationController automationController = CreateAutomationController(trigger, [], [new ExceptionAction()]);
         await Assert.ThrowsAsync<AutomationException>(async () => await automationController.ProcessJsonFromWebhookAsync(new ProcessingRequest(GetJsonFromSampleFile("MoveCardFromListToList.json"))));
     }
 
@@ -182,20 +182,20 @@ public class BasicFlowTests : TestBase
     private AutomationController CreateAutomationController(IAutomationTrigger trigger, List<IAutomationCondition> conditions, List<IAutomationAction> actions)
     {
         const string name = "X";
-        var automation1 = new Automation(name, trigger, conditions, actions);
-        var automation2 = new Automation(name, trigger, conditions, actions);
-        var configuration = new Configuration(TrelloClient, automation1, automation2);
-        var automationController = new AutomationController(configuration);
+        Automation automation1 = new Automation(name, trigger, conditions, actions);
+        Automation automation2 = new Automation(name, trigger, conditions, actions);
+        Configuration configuration = new Configuration(TrelloClient, automation1, automation2);
+        AutomationController automationController = new AutomationController(configuration);
         return automationController;
     }
 
     private AutomationController CreateAutomationController(List<IAutomationTrigger> triggers, List<IAutomationCondition> conditions, List<IAutomationAction> actions)
     {
         const string name = "X";
-        var automation1 = new Automation(name, triggers, conditions, actions);
-        var automation2 = new Automation(name, triggers, conditions, actions);
-        var configuration = new Configuration(TrelloClient, automation1, automation2);
-        var automationController = new AutomationController(configuration);
+        Automation automation1 = new Automation(name, triggers, conditions, actions);
+        Automation automation2 = new Automation(name, triggers, conditions, actions);
+        Configuration configuration = new Configuration(TrelloClient, automation1, automation2);
+        AutomationController automationController = new AutomationController(configuration);
         return automationController;
     }
 
@@ -203,7 +203,7 @@ public class BasicFlowTests : TestBase
     {
         const string sampleJsonFolder = "SampleJson";
         const string webhookEventsFolder = "WebhookEvents";
-        var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+        string assemblyLocation = Assembly.GetExecutingAssembly().Location;
         string path = Path.GetDirectoryName(assemblyLocation) +
                       Path.DirectorySeparatorChar +
                       sampleJsonFolder +

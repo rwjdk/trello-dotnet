@@ -7,6 +7,9 @@
 
     <UserSecretsId>b9dfea2d-4fd2-4d76-a85b-6784ddc450dc</UserSecretsId>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="TestSandbox.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="TestData\TestImage.png" />

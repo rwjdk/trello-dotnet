@@ -61,8 +61,8 @@ namespace TrelloDotNet
         /// <param name="labelIdsToAdd">One or more Ids of Labels to add</param>
         public async Task<Card> AddLabelsToCardAsync(string cardId, CancellationToken cancellationToken = default, params string[] labelIdsToAdd)
         {
-            var card = await GetCardAsync(cardId, cancellationToken);
-            var missing = labelIdsToAdd.Where(x => !card.LabelIds.Contains(x)).ToList();
+            Card card = await GetCardAsync(cardId, cancellationToken);
+            List<string> missing = labelIdsToAdd.Where(x => !card.LabelIds.Contains(x)).ToList();
 
             if (missing.Count == 0)
             {
@@ -95,8 +95,8 @@ namespace TrelloDotNet
         /// <param name="labelIdsToRemove">One or more Ids of Labels to remove</param>
         public async Task<Card> RemoveLabelsFromCardAsync(string cardId, CancellationToken cancellationToken, params string[] labelIdsToRemove)
         {
-            var card = await GetCardAsync(cardId, cancellationToken);
-            var toRemove = labelIdsToRemove.Where(x => card.LabelIds.Contains(x)).ToList();
+            Card card = await GetCardAsync(cardId, cancellationToken);
+            List<string> toRemove = labelIdsToRemove.Where(x => card.LabelIds.Contains(x)).ToList();
             if (toRemove.Count == 0)
             {
                 return card; //All not there

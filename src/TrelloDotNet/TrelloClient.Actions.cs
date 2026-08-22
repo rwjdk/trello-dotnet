@@ -77,7 +77,7 @@ namespace TrelloDotNet
 
         private async Task<List<TrelloAction>> GetActionsFromSuffix(string suffix, GetActionsOptions options, CancellationToken cancellationToken = default)
         {
-            var parameters = new List<QueryParameter>();
+            List<QueryParameter> parameters = new List<QueryParameter>();
             if (options.Filter != null)
             {
                 parameters.Add(new QueryParameter("filter", string.Join(",", options.Filter)));

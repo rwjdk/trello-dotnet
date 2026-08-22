@@ -17,16 +17,16 @@ public class TestFixtureWithNewBoard : TestBase, IAsyncLifetime
         Assert.True(TrelloClient.Options.MaxRetryCountForTokenLimitExceeded > 0);
         Assert.True(TrelloClient.Options.DelayInSecondsToWaitInTokenLimitExceededRetry > 0);
 
-        var organizationName = Guid.NewGuid().ToString();
+        string organizationName = Guid.NewGuid().ToString();
         OrganizationName = $"UnitTestOrganization-{organizationName}";
         Organization = await TrelloClient.AddOrganizationAsync(new Organization(OrganizationName));
         OrganizationId = Organization.Id;
         Assert.Equal(OrganizationName, Organization.DisplayName);
 
-        var boardName = Guid.NewGuid().ToString();
+        string boardName = Guid.NewGuid().ToString();
         BoardName = $"UnitTestBoard-{boardName}";
         BoardDescription = $"BoardDescription-{boardName}";
-        var board = new Board(BoardName, BoardDescription)
+        Board board = new Board(BoardName, BoardDescription)
         {
             OrganizationId = Organization.Id
         };

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TrelloDotNet.AutomationEngine.Interface;
 using TrelloDotNet.Model;
@@ -40,8 +41,8 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
                 return false;
             }
 
-            var checklists = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(webhookAction.Data.Card.Id);
-            var checklistToCheck = checklists.FirstOrDefault(x => x.Name == ChecklistNameToCheck);
+            List<Checklist> checklists = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(webhookAction.Data.Card.Id);
+            Checklist checklistToCheck = checklists.FirstOrDefault(x => x.Name == ChecklistNameToCheck);
             return checklistToCheck != null && checklistToCheck.Items.All(x => x.State != ChecklistItemState.Complete);
         }
     }

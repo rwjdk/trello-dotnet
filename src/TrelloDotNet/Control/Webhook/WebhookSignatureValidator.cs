@@ -9,7 +9,7 @@ namespace TrelloDotNet.Control.Webhook
     {
         private static byte[] Digest(byte[] data, int dataIndex, int dataLength, string secret)
         {
-            var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secret));
+            HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secret));
             return hmac.ComputeHash(data, dataIndex, dataLength);
         }
 
@@ -24,12 +24,12 @@ namespace TrelloDotNet.Control.Webhook
             if (secret == null)
                 throw new ArgumentNullException(nameof(secret), "You must provide an API secret to use Webhook Signature Validation. Please set TrelloClientOptions.Secret");
 
-            var payloadLength = Encoding.UTF8.GetByteCount(json) + Encoding.UTF8.GetByteCount(webhookUrl);
-            var payloadBytes = new byte[payloadLength];
-            var payloadBytesWritten = Encoding.UTF8.GetBytes(json, 0, json.Length, payloadBytes, 0);
+            int payloadLength = Encoding.UTF8.GetByteCount(json) + Encoding.UTF8.GetByteCount(webhookUrl);
+            byte[] payloadBytes = new byte[payloadLength];
+            int payloadBytesWritten = Encoding.UTF8.GetBytes(json, 0, json.Length, payloadBytes, 0);
             payloadBytesWritten += Encoding.UTF8.GetBytes(webhookUrl, 0, webhookUrl.Length, payloadBytes, payloadBytesWritten);
-            var hashBytes = Digest(payloadBytes, 0, payloadBytesWritten, secret);
-            var signatureBytes = Convert.FromBase64String(signature);
+            byte[] hashBytes = Digest(payloadBytes, 0, payloadBytesWritten, secret);
+            byte[] signatureBytes = Convert.FromBase64String(signature);
             return hashBytes.SequenceEqual(signatureBytes);
         }
     }

@@ -49,7 +49,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
                 return false;
             }
 
-            var checklists = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(webhookAction.Data.Card.Id);
+            List<Checklist> checklists = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(webhookAction.Data.Card.Id);
             List<Checklist> checklistsToCheck;
             switch (ChecklistNameMatchCriteria)
             {

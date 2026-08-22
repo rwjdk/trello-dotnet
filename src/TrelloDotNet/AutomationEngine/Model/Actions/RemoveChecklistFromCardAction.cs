@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TrelloDotNet.AutomationEngine.Interface;
+using TrelloDotNet.Model;
 using TrelloDotNet.Model.Webhook;
 
 namespace TrelloDotNet.AutomationEngine.Model.Actions
@@ -37,9 +39,9 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform RemoveChecklistFromCardAction as WebhookAction did not involve a Card");
             }
 
-            var cardId = webhookAction.Data.Card.Id;
-            var existingOnCard = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(cardId);
-            var existing = existingOnCard.FirstOrDefault(x => x.Name == ChecklistNameToRemove);
+            string cardId = webhookAction.Data.Card.Id;
+            List<Checklist> existingOnCard = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(cardId);
+            Checklist existing = existingOnCard.FirstOrDefault(x => x.Name == ChecklistNameToRemove);
             if (existing == null)
             {
                 processingResult.AddToLog($"SKIPPED: Checklist '{ChecklistNameToRemove}' was not present on card '{webhookAction.Data.Card.Name}'");

@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using TrelloDotNet.AutomationEngine.Interface;
+using TrelloDotNet.Model;
 using TrelloDotNet.Model.Options;
 using TrelloDotNet.Model.Options.GetCardOptions;
 using TrelloDotNet.Model.Webhook;
@@ -39,21 +40,21 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform AddChecklistToCardIfLabelMatchAction as WebhookAction did not involve a Card");
             }
 
-            var card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
+            Card card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
             {
                 CardFields = new CardFields("labels")
             });
 
 
-            foreach (var checklistIfLabelMatch in AddChecklistActionsIfLabelsMatch)
+            foreach (AddChecklistToCardIfLabelMatch checklistIfLabelMatch in AddChecklistActionsIfLabelsMatch)
             {
-                foreach (var labelId in checklistIfLabelMatch.LabelIdsToMatch)
+                foreach (string labelId in checklistIfLabelMatch.LabelIdsToMatch)
                 {
                     if (checklistIfLabelMatch.TreatLabelNameAsId)
                     {
                         if (card.Labels.Any(x => x.Name == labelId))
                         {
-                            var proceed = true;
+                            bool proceed = true;
                             if (checklistIfLabelMatch.LabelIdsThatCantBePresent.Any())
                             {
                                 proceed = !checklistIfLabelMatch.LabelIdsThatCantBePresent.Any(labelThatCantBePresent => card.Labels.Any(x => x.Name == labelThatCantBePresent));
@@ -70,7 +71,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                     {
                         if (card.Labels.Any(x => x.Id == labelId))
                         {
-                            var proceed = true;
+                            bool proceed = true;
                             if (checklistIfLabelMatch.LabelIdsThatCantBePresent.Any())
                             {
                                 proceed = !checklistIfLabelMatch.LabelIdsThatCantBePresent.Any(labelThatCantBePresent => card.Labels.Any(x => x.Id == labelThatCantBePresent));
@@ -89,7 +90,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
 
         private async Task PerformActions(AddChecklistToCardAction[] addChecklistToCardActions, WebhookAction webhookAction, ProcessingResult processingResult)
         {
-            foreach (var addChecklistToCardAction in addChecklistToCardActions)
+            foreach (AddChecklistToCardAction addChecklistToCardAction in addChecklistToCardActions)
             {
                 await addChecklistToCardAction.PerformActionAsync(webhookAction, processingResult);
             }

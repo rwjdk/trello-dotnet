@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TrelloDotNet.AutomationEngine.Interface;
+using TrelloDotNet.Model;
 using TrelloDotNet.Model.Options;
 using TrelloDotNet.Model.Options.GetCardOptions;
 using TrelloDotNet.Model.Webhook;
@@ -117,7 +118,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
 
         private async Task<bool> CheckDueComplete(WebhookAction webhookAction)
         {
-            var card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
+            Card card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
             {
                 CardFields = new CardFields("dueComplete"),
             });
@@ -140,13 +141,13 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
 
         private bool CheckName(WebhookAction webhookAction)
         {
-            var name = webhookAction.Data.Card.Name;
+            string name = webhookAction.Data.Card.Name;
             return CheckString(name);
         }
 
         private async Task<bool> CheckDescription(WebhookAction webhookAction)
         {
-            var card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
+            Card card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
             {
                 CardFields = new CardFields("desc")
             });
@@ -162,7 +163,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
                 case CardFieldConditionConstraint.IsSet:
                     return !string.IsNullOrWhiteSpace(cardStringValue);
                 case CardFieldConditionConstraint.Value:
-                    var inputValue = (string)Value;
+                    string inputValue = (string)Value;
                     switch (StringValueMatchCriteria)
                     {
                         case StringMatchCriteria.Equal:
@@ -185,7 +186,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
 
         private async Task<bool> CheckStart(WebhookAction webhookAction)
         {
-            var card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
+            Card card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
             {
                 CardFields = new CardFields("start")
             });
@@ -194,7 +195,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
 
         private async Task<bool> CheckDue(WebhookAction webhookAction)
         {
-            var card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
+            Card card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
             {
                 CardFields = new CardFields("due")
             });
@@ -210,7 +211,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
                 case CardFieldConditionConstraint.IsSet:
                     return valueOnCard.HasValue;
                 case CardFieldConditionConstraint.Value:
-                    var dateTimeOffsetValue = (DateTimeOffset)Value;
+                    DateTimeOffset dateTimeOffsetValue = (DateTimeOffset)Value;
                     switch (DateTimeOffsetValueMatchCriteria)
                     {
                         case DateTimeOffsetMatchCriteria.Equal:

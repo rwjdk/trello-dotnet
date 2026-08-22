@@ -44,17 +44,17 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform AddMembersToCardAction as WebhookAction did not involve a Card");
             }
 
-            var trelloClient = webhookAction.TrelloClient;
+            TrelloClient trelloClient = webhookAction.TrelloClient;
 
-            var memberIdsToAdd = MemberIds;
+            string[] memberIdsToAdd = MemberIds;
 
             if (TreatMemberNameAsId)
             {
-                var allMembers = await webhookAction.TrelloClient.GetMembersOfBoardAsync(webhookAction.Data.Board.Id);
-                var idsFromNames = new List<string>();
-                foreach (var memberName in MemberIds) //Remember; here the 'Id's' are actually Names so we need to find the id's needed for add
+                List<Member> allMembers = await webhookAction.TrelloClient.GetMembersOfBoardAsync(webhookAction.Data.Board.Id);
+                List<string> idsFromNames = new List<string>();
+                foreach (string memberName in MemberIds) //Remember; here the 'Id's' are actually Names so we need to find the id's needed for add
                 {
-                    var member = allMembers.FirstOrDefault(x => x.FullName == memberName);
+                    Member member = allMembers.FirstOrDefault(x => x.FullName == memberName);
                     if (member != null)
                     {
                         idsFromNames.Add(member.Id);
@@ -64,9 +64,9 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 memberIdsToAdd = idsFromNames.ToArray();
             }
 
-            var card = await webhookAction.Data.Card.GetAsync();
+            Card card = await webhookAction.Data.Card.GetAsync();
             bool updateNeeded = false;
-            foreach (var memberId in memberIdsToAdd)
+            foreach (string memberId in memberIdsToAdd)
             {
                 if (!card.MemberIds.Contains(memberId))
                 {

@@ -40,7 +40,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Triggers
         public async Task<bool> IsTriggerMetAsync(WebhookAction webhookAction)
         {
             await Task.CompletedTask;
-            var isUpdateCard = webhookAction.Type == WebhookActionTypes.UpdateCard;
+            bool isUpdateCard = webhookAction.Type == WebhookActionTypes.UpdateCard;
             if (!isUpdateCard)
             {
                 return false;

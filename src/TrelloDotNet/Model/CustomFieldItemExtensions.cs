@@ -20,7 +20,7 @@ namespace TrelloDotNet.Model
         /// <returns>Value</returns>
         public static int? GetCustomFieldValueAsInteger(this List<CustomFieldItem> items, CustomField customField)
         {
-            var @object = items.GetCustomFieldValueAsObject(customField);
+            object @object = items.GetCustomFieldValueAsObject(customField);
             if (@object == null)
             {
                 return null;
@@ -43,7 +43,7 @@ namespace TrelloDotNet.Model
         /// <returns>Value</returns>
         public static decimal? GetCustomFieldValueAsDecimal(this List<CustomFieldItem> items, CustomField customField)
         {
-            var @object = items.GetCustomFieldValueAsObject(customField);
+            object @object = items.GetCustomFieldValueAsObject(customField);
             if (@object == null)
             {
                 return null;
@@ -66,7 +66,7 @@ namespace TrelloDotNet.Model
         /// <returns>Value</returns>
         public static bool? GetCustomFieldValueAsBoolean(this List<CustomFieldItem> items, CustomField customField)
         {
-            var @object = items.GetCustomFieldValueAsObject(customField);
+            object @object = items.GetCustomFieldValueAsObject(customField);
             if (@object == null)
             {
                 return null;
@@ -89,7 +89,7 @@ namespace TrelloDotNet.Model
         /// <returns>Value</returns>
         public static DateTimeOffset? GetCustomFieldValueAsDateTimeOffset(this List<CustomFieldItem> items, CustomField customField)
         {
-            var @object = items.GetCustomFieldValueAsObject(customField);
+            object @object = items.GetCustomFieldValueAsObject(customField);
             if (@object == null)
             {
                 return null;
@@ -98,7 +98,7 @@ namespace TrelloDotNet.Model
             switch (customField.Type)
             {
                 case CustomFieldType.Date:
-                    var dateAsString = @object.ToString();
+                    string dateAsString = @object.ToString();
                     return DateTimeOffset.ParseExact(dateAsString, "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
                 default:
                     throw new ArgumentOutOfRangeException($"Custom field of type '{customField.Type}' can't be converted to a Date");
@@ -113,7 +113,7 @@ namespace TrelloDotNet.Model
         /// <returns>Value</returns>
         public static CustomFieldOption GetCustomFieldValueAsOption(this List<CustomFieldItem> items, CustomField customField)
         {
-            var @object = items.GetCustomFieldValueAsObject(customField);
+            object @object = items.GetCustomFieldValueAsObject(customField);
             if (@object == null)
             {
                 return null;
@@ -136,7 +136,7 @@ namespace TrelloDotNet.Model
         /// <returns>Value</returns>
         public static string GetCustomFieldValueAsString(this List<CustomFieldItem> items, CustomField customField)
         {
-            var @object = items.GetCustomFieldValueAsObject(customField);
+            object @object = items.GetCustomFieldValueAsObject(customField);
             if (@object == null)
             {
                 return null;
@@ -166,7 +166,7 @@ namespace TrelloDotNet.Model
                 throw new TrelloApiException("CustomFields are null. Did you remember to include them in the TrelloClientOptions?", null);
             }
 
-            var customFieldItem = items.FirstOrDefault(x => x.CustomFieldId == customField.Id);
+            CustomFieldItem customFieldItem = items.FirstOrDefault(x => x.CustomFieldId == customField.Id);
             if (customFieldItem == null)
             {
                 return null;

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using TrelloDotNet.Model;
 using TrelloDotNet.Model.Webhook;
 
 namespace TrelloDotNet.Tests.WebhookReceiverTests;
@@ -89,13 +90,13 @@ public class BoardEvents : TestBase
     [Fact]
     public void BaseTest()
     {
-        var receiver = new WebhookDataReceiver(TrelloClient);
+        WebhookDataReceiver receiver = new WebhookDataReceiver(TrelloClient);
         receiver.ProcessJsonIntoEvents(string.Empty);
-        var json = GetJsonFromSampleFile("AddStartDate.json");
-        var eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
+        string json = GetJsonFromSampleFile("AddStartDate.json");
+        WebhookNotificationBoard eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
 
         //Board
-        var board = eBoard.Board;
+        Board board = eBoard.Board;
         Assert.Equal("63d128787441d05619f44dbe", board.Id);
         Assert.Equal("New Name2", board.Name);
         Assert.Equal("New description", board.Description);
@@ -105,7 +106,7 @@ public class BoardEvents : TestBase
         Assert.NotNull(board.Created);
 
         //Action
-        var action = eBoard.Action;
+        WebhookAction action = eBoard.Action;
         Assert.NotNull(action);
         Assert.Equal("63d1239e857afaa8b003c633", action.MemberCreatorId);
         Assert.Equal("updateCard", action.Type);
@@ -113,17 +114,17 @@ public class BoardEvents : TestBase
         Assert.Equal(new DateTimeOffset(2023, 2, 7, 20, 2, 14, 641, TimeSpan.Zero), action.Date);
 
         //Display
-        var display = action.Display;
+        WebhookActionDisplay display = action.Display;
         Assert.Equal("action_added_a_start_date", display.TranslationKey);
 
         //Member creator
-        var memberCreator = action.MemberCreator;
+        Member memberCreator = action.MemberCreator;
         Assert.Equal("63d1239e857afaa8b003c633", memberCreator.Id);
         Assert.Equal("Rasmus", memberCreator.FullName);
         Assert.Equal("rasmus58348007", memberCreator.Username);
 
         //Action Data
-        var data = action.Data;
+        WebhookActionData data = action.Data;
         Assert.Equal(board.Id, data.Board.Id);
         Assert.Equal(board.Name, data.Board.Name);
         Assert.Equal("63d9942f12260e27b257d067", data.List.Id);
@@ -132,16 +133,16 @@ public class BoardEvents : TestBase
         AssertData(data, PresentThings.Board, PresentThings.Card, PresentThings.List);
         AssertOld(data.Old);
 
-        var eCard = receiver.ConvertJsonToWebhookNotificationCard(json);
+        WebhookNotificationCard eCard = receiver.ConvertJsonToWebhookNotificationCard(json);
         Assert.NotNull(eCard.Action);
 
-        var eList = receiver.ConvertJsonToWebhookNotificationList(json);
+        WebhookNotificationList eList = receiver.ConvertJsonToWebhookNotificationList(json);
         Assert.NotNull(eList.Action);
 
-        var eMember = receiver.ConvertJsonToWebhookNotificationMember(json);
+        WebhookNotificationMember eMember = receiver.ConvertJsonToWebhookNotificationMember(json);
         Assert.NotNull(eMember.Action);
 
-        var noMember = receiver.ConvertJsonToWebhookNotification(json);
+        WebhookNotification noMember = receiver.ConvertJsonToWebhookNotification(json);
         Assert.NotNull(noMember.Action);
 
         SubscribeToEventsProcessAndWait(receiver, json);
@@ -161,20 +162,20 @@ public class BoardEvents : TestBase
     [Fact]
     public void AddChecklist()
     {
-        var receiver = new WebhookDataReceiver(TrelloClient);
-        var json = GetJsonFromSampleFile("AddChecklist.json");
-        var eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
+        WebhookDataReceiver receiver = new WebhookDataReceiver(TrelloClient);
+        string json = GetJsonFromSampleFile("AddChecklist.json");
+        WebhookNotificationBoard eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
 
         //Action
-        var action = eBoard.Action;
+        WebhookAction action = eBoard.Action;
         Assert.NotNull(action);
 
         //Display
-        var display = action.Display;
+        WebhookActionDisplay display = action.Display;
         Assert.Equal("action_add_checklist_to_card", display.TranslationKey);
 
         //Action Data
-        var data = action.Data;
+        WebhookActionData data = action.Data;
         AssertData(data, PresentThings.Board, PresentThings.Card, PresentThings.Checklist);
         AssertOld(data.Old);
 
@@ -187,20 +188,20 @@ public class BoardEvents : TestBase
     [Fact]
     public void AddMemberToCard()
     {
-        var receiver = new WebhookDataReceiver(TrelloClient);
-        var json = GetJsonFromSampleFile("AddMember.json");
-        var eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
+        WebhookDataReceiver receiver = new WebhookDataReceiver(TrelloClient);
+        string json = GetJsonFromSampleFile("AddMember.json");
+        WebhookNotificationBoard eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
 
         //Action
-        var action = eBoard.Action;
+        WebhookAction action = eBoard.Action;
         Assert.NotNull(action);
 
         //Display
-        var display = action.Display;
+        WebhookActionDisplay display = action.Display;
         Assert.Equal("action_member_joined_card", display.TranslationKey);
 
         //Action Data
-        var data = action.Data;
+        WebhookActionData data = action.Data;
         AssertData(data, PresentThings.Member, PresentThings.Board, PresentThings.Card);
         AssertOld(data.Old);
 
@@ -213,20 +214,20 @@ public class BoardEvents : TestBase
     [Fact]
     public void RemoveMemberFromCard()
     {
-        var receiver = new WebhookDataReceiver(TrelloClient);
-        var json = GetJsonFromSampleFile("RemoveMember.json");
-        var eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
+        WebhookDataReceiver receiver = new WebhookDataReceiver(TrelloClient);
+        string json = GetJsonFromSampleFile("RemoveMember.json");
+        WebhookNotificationBoard eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
 
         //Action
-        var action = eBoard.Action;
+        WebhookAction action = eBoard.Action;
         Assert.NotNull(action);
 
         //Display
-        var display = action.Display;
+        WebhookActionDisplay display = action.Display;
         Assert.Equal("action_member_left_card", display.TranslationKey);
 
         //Action Data
-        var data = action.Data;
+        WebhookActionData data = action.Data;
         AssertData(data, PresentThings.Member, PresentThings.Board, PresentThings.Card);
         AssertOld(data.Old);
 
@@ -239,20 +240,20 @@ public class BoardEvents : TestBase
     [Fact]
     public void MoveCardToList()
     {
-        var receiver = new WebhookDataReceiver(TrelloClient);
-        var json = GetJsonFromSampleFile("MoveCardFromListToList.json");
-        var eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
+        WebhookDataReceiver receiver = new WebhookDataReceiver(TrelloClient);
+        string json = GetJsonFromSampleFile("MoveCardFromListToList.json");
+        WebhookNotificationBoard eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
 
         //Action
-        var action = eBoard.Action;
+        WebhookAction action = eBoard.Action;
         Assert.NotNull(action);
 
         //Display
-        var display = action.Display;
+        WebhookActionDisplay display = action.Display;
         Assert.Equal("action_move_card_from_list_to_list", display.TranslationKey);
 
         //Action Data
-        var data = action.Data;
+        WebhookActionData data = action.Data;
         AssertData(data, PresentThings.ListBefore, PresentThings.ListAfter, PresentThings.Board, PresentThings.Card);
         AssertOld(data.Old, OldDataPresent.ListId);
 
@@ -266,20 +267,20 @@ public class BoardEvents : TestBase
     [Fact]
     public void MarkDueAsComplete()
     {
-        var receiver = new WebhookDataReceiver(TrelloClient);
-        var json = GetJsonFromSampleFile("MarkDueAsComplete.json");
-        var eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
+        WebhookDataReceiver receiver = new WebhookDataReceiver(TrelloClient);
+        string json = GetJsonFromSampleFile("MarkDueAsComplete.json");
+        WebhookNotificationBoard eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
 
         //Action
-        var action = eBoard.Action;
+        WebhookAction action = eBoard.Action;
         Assert.NotNull(action);
 
         //Display
-        var display = action.Display;
+        WebhookActionDisplay display = action.Display;
         Assert.Equal("action_marked_the_due_date_complete", display.TranslationKey);
 
         //Action Data
-        var data = action.Data;
+        WebhookActionData data = action.Data;
         AssertData(data, PresentThings.Board, PresentThings.Card, PresentThings.List);
         AssertOld(data.Old, OldDataPresent.DueComplete);
 
@@ -293,20 +294,20 @@ public class BoardEvents : TestBase
     [Fact]
     public void AddLabelToCard()
     {
-        var receiver = new WebhookDataReceiver(TrelloClient);
-        var json = GetJsonFromSampleFile("AddLabel_Part1.json");
-        var eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
+        WebhookDataReceiver receiver = new WebhookDataReceiver(TrelloClient);
+        string json = GetJsonFromSampleFile("AddLabel_Part1.json");
+        WebhookNotificationBoard eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
 
         //Action
-        var action = eBoard.Action;
+        WebhookAction action = eBoard.Action;
         Assert.NotNull(action);
 
         //Display
-        var display = action.Display;
+        WebhookActionDisplay display = action.Display;
         Assert.Equal("action_add_label_to_card", display.TranslationKey);
 
         //Action Data
-        var data = action.Data;
+        WebhookActionData data = action.Data;
         AssertData(data, PresentThings.Board, PresentThings.Card, PresentThings.Label);
         AssertOld(data.Old);
 
@@ -320,20 +321,20 @@ public class BoardEvents : TestBase
     [Fact]
     public void RemoveLabelFromCard()
     {
-        var receiver = new WebhookDataReceiver(TrelloClient);
-        var json = GetJsonFromSampleFile("RemoveLabel_Part1.json");
-        var eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
+        WebhookDataReceiver receiver = new WebhookDataReceiver(TrelloClient);
+        string json = GetJsonFromSampleFile("RemoveLabel_Part1.json");
+        WebhookNotificationBoard eBoard = receiver.ConvertJsonToWebhookNotificationBoard(json);
 
         //Action
-        var action = eBoard.Action;
+        WebhookAction action = eBoard.Action;
         Assert.NotNull(action);
 
         //Display
-        var display = action.Display;
+        WebhookActionDisplay display = action.Display;
         Assert.Equal("action_remove_label_from_card", display.TranslationKey);
 
         //Action Data
-        var data = action.Data;
+        WebhookActionData data = action.Data;
         AssertData(data, PresentThings.Board, PresentThings.Card, PresentThings.Label);
         AssertOld(data.Old);
 
@@ -538,7 +539,7 @@ public class BoardEvents : TestBase
     {
         const string sampleJsonFolder = "SampleJson";
         const string webhookEventsFolder = "WebhookEvents";
-        var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+        string assemblyLocation = Assembly.GetExecutingAssembly().Location;
         string path = Path.GetDirectoryName(assemblyLocation) +
                       Path.DirectorySeparatorChar +
                       sampleJsonFolder +

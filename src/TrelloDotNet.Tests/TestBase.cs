@@ -17,13 +17,13 @@ public abstract class TestBase
     {
         try
         {
-            var config = new ConfigurationBuilder()
+            IConfigurationRoot config = new ConfigurationBuilder()
                 .AddUserSecrets<TestBase>()
                 .Build();
 
-            var apiKey = config["TrelloApiKey"];
-            var token = config["TrelloToken"];
-            var trelloClientOptions = new TrelloClientOptions
+            string? apiKey = config["TrelloApiKey"];
+            string? token = config["TrelloToken"];
+            TrelloClientOptions trelloClientOptions = new TrelloClientOptions
             {
                 MaxRetryCountForTokenLimitExceeded = 10,
                 DelayInSecondsToWaitInTokenLimitExceededRetry = 2
@@ -55,8 +55,8 @@ public abstract class TestBase
 
     public void AssertTimeIsNow(DateTimeOffset? objectCreationTime)
     {
-        var beforeNow = objectCreationTime < DateTimeOffset.UtcNow.AddMinutes(1);
-        var afterAMinuteAgo = objectCreationTime > DateTimeOffset.UtcNow.AddMinutes(-1);
+        bool beforeNow = objectCreationTime < DateTimeOffset.UtcNow.AddMinutes(1);
+        bool afterAMinuteAgo = objectCreationTime > DateTimeOffset.UtcNow.AddMinutes(-1);
         Assert.True(beforeNow && afterAMinuteAgo);
     }
 }

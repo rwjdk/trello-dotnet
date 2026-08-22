@@ -10,21 +10,21 @@ public class TokenTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtu
     [Fact]
     public async Task GetBoardsCurrentTokenCanAccess()
     {
-        var boards = await TrelloClient.GetBoardsCurrentTokenCanAccessAsync();
+        List<Board> boards = await TrelloClient.GetBoardsCurrentTokenCanAccessAsync();
         Assert.Contains(boards, x => x.Id == _board.Id);
     }
 
     [Fact]
     public async Task GetOrganizationsCurrentTokenCanAccess()
     {
-        var organizations = await TrelloClient.GetOrganizationsCurrentTokenCanAccessAsync();
+        List<Organization> organizations = await TrelloClient.GetOrganizationsCurrentTokenCanAccessAsync();
         Assert.Contains(organizations, x => x.Id == _organization.Id);
     }
 
     [Fact]
     public async Task TokenInformation()
     {
-        var tokenInformation = await TrelloClient.GetTokenInformationAsync();
+        TokenInformation tokenInformation = await TrelloClient.GetTokenInformationAsync();
         Assert.NotNull(tokenInformation);
         Assert.NotNull(tokenInformation.Created);
         Assert.Null(tokenInformation.Expires);
@@ -37,7 +37,7 @@ public class TokenTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtu
         Assert.True(tokenInformation.Permissions[0].Read);
         Assert.True(tokenInformation.Permissions[0].Write);
 
-        var tokenMember = await TrelloClient.GetTokenMemberAsync();
+        Member tokenMember = await TrelloClient.GetTokenMemberAsync();
         Assert.NotNull(tokenMember);
     }
 }

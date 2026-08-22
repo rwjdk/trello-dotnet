@@ -10,29 +10,29 @@ public class EnumViaJsonPropertyConverterTests
     [Fact]
     public void Read()
     {
-        var enumViaJsonPropertyConverter = new EnumViaJsonPropertyConverter<CardCoverColor>();
+        EnumViaJsonPropertyConverter<CardCoverColor> enumViaJsonPropertyConverter = new EnumViaJsonPropertyConverter<CardCoverColor>();
         byte[] bytes = "\"pink\""u8.ToArray();
         Utf8JsonReader stringReader = new Utf8JsonReader(bytes.AsSpan());
         stringReader.Read();
-        var readColor = enumViaJsonPropertyConverter.Read(ref stringReader, typeof(CardCoverColor), JsonSerializerOptions.Default);
+        CardCoverColor readColor = enumViaJsonPropertyConverter.Read(ref stringReader, typeof(CardCoverColor), JsonSerializerOptions.Default);
         Assert.Equal(CardCoverColor.Pink, readColor);
     }
 
     [Fact]
     public void ReadEmpty()
     {
-        var enumViaJsonPropertyConverter = new EnumViaJsonPropertyConverter<CardCoverColor>();
+        EnumViaJsonPropertyConverter<CardCoverColor> enumViaJsonPropertyConverter = new EnumViaJsonPropertyConverter<CardCoverColor>();
         byte[] bytes = "\"\""u8.ToArray();
         Utf8JsonReader stringReader = new Utf8JsonReader(bytes.AsSpan());
         stringReader.Read();
-        var readColor = enumViaJsonPropertyConverter.Read(ref stringReader, typeof(CardCoverColor), JsonSerializerOptions.Default);
+        CardCoverColor readColor = enumViaJsonPropertyConverter.Read(ref stringReader, typeof(CardCoverColor), JsonSerializerOptions.Default);
         Assert.Equal(CardCoverColor.None, readColor);
     }
 
     [Fact]
     public void ReadInvalid()
     {
-        var enumViaJsonPropertyConverter = new EnumViaJsonPropertyConverter<DateTimeKind>();
+        EnumViaJsonPropertyConverter<DateTimeKind> enumViaJsonPropertyConverter = new EnumViaJsonPropertyConverter<DateTimeKind>();
         byte[] bytes = "\"aaa\""u8.ToArray();
         Assert.Throws<Exception>(() =>
         {
@@ -45,9 +45,9 @@ public class EnumViaJsonPropertyConverterTests
     [Fact]
     public void Write()
     {
-        var enumViaJsonPropertyConverter = new EnumViaJsonPropertyConverter<CardCoverColor>();
-        var memoryStream = new MemoryStream();
-        var utf8JsonWriter = new Utf8JsonWriter(memoryStream);
+        EnumViaJsonPropertyConverter<CardCoverColor> enumViaJsonPropertyConverter = new EnumViaJsonPropertyConverter<CardCoverColor>();
+        MemoryStream memoryStream = new MemoryStream();
+        Utf8JsonWriter utf8JsonWriter = new Utf8JsonWriter(memoryStream);
         enumViaJsonPropertyConverter.Write(utf8JsonWriter, CardCoverColor.Pink, JsonSerializerOptions.Default);
         utf8JsonWriter.Flush();
         string json = Encoding.UTF8.GetString(memoryStream.ToArray());

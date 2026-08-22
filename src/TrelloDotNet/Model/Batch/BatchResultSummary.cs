@@ -23,8 +23,8 @@ namespace TrelloDotNet.Model.Batch
         {
             get
             {
-                var errors = new List<string>();
-                foreach (var result in Results)
+                List<string> errors = new List<string>();
+                foreach (BatchResultForUrl result in Results)
                 {
                     if (result.StatusCode != 200)
                     {

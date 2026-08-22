@@ -7,7 +7,7 @@ public class CardCoverTests
     [Fact]
     public void PrepareForAddUpdate()
     {
-        var cardCover = new CardCover
+        CardCover cardCover = new CardCover
         {
             Color = CardCoverColor.None,
             Size = CardCoverSize.None,

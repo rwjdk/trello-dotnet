@@ -135,15 +135,15 @@ namespace TrelloDotNet.Model.Webhook
 
         internal static WebhookActionData CreateDummy(WebhookAction.WebhookActionDummyCreationScenario webhookActionDummyCreationScenario, Card cardToSimulate, List listToSimulate, Board boardToSimulate)
         {
-            var listAfter = WebhookActionDataList.CreateDummy();
-            var listBefore = WebhookActionDataList.CreateDummy();
-            var card = WebhookActionDataCard.CreateDummy(cardToSimulate);
-            var board = WebhookActionDataBoard.CreateDummy(boardToSimulate);
-            var member = WebhookActionDataMember.CreateDummy();
-            var checkItem = WebhookActionDataCheckItem.CreateDummy();
-            var checklist = WebhookActionDataChecklist.CreateDummy();
-            var label = WebhookActionDataLabel.CreateDummy();
-            var list = WebhookActionDataList.CreateDummy(listToSimulate);
+            WebhookActionDataList listAfter = WebhookActionDataList.CreateDummy();
+            WebhookActionDataList listBefore = WebhookActionDataList.CreateDummy();
+            WebhookActionDataCard card = WebhookActionDataCard.CreateDummy(cardToSimulate);
+            WebhookActionDataBoard board = WebhookActionDataBoard.CreateDummy(boardToSimulate);
+            WebhookActionDataMember member = WebhookActionDataMember.CreateDummy();
+            WebhookActionDataCheckItem checkItem = WebhookActionDataCheckItem.CreateDummy();
+            WebhookActionDataChecklist checklist = WebhookActionDataChecklist.CreateDummy();
+            WebhookActionDataLabel label = WebhookActionDataLabel.CreateDummy();
+            WebhookActionDataList list = WebhookActionDataList.CreateDummy(listToSimulate);
 
             switch (webhookActionDummyCreationScenario)
             {
@@ -171,7 +171,7 @@ namespace TrelloDotNet.Model.Webhook
                     break;
             }
 
-            var webhookActionData = new WebhookActionData()
+            WebhookActionData webhookActionData = new WebhookActionData()
             {
                 Card = card,
                 Board = board,

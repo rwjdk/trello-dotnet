@@ -37,7 +37,7 @@ namespace TrelloDotNet
                 throw new TrelloApiException("No ListId provided in options (Mandatory)", string.Empty);
             }
 
-            var input = new Card(options.ListId, options.Name, options.Description)
+            Card input = new Card(options.ListId, options.Name, options.Description)
             {
                 IsTemplate = options.IsTemplate
             };
@@ -78,7 +78,7 @@ namespace TrelloDotNet
             Card addedCard = await _apiRequestController.Post<Card>($"{UrlPaths.Cards}", cancellationToken, parameters);
 
             bool needGet = false;
-            var getCardOptions = new GetCardOptions();
+            GetCardOptions getCardOptions = new GetCardOptions();
             if (options.Checklists != null)
             {
                 needGet = true;
@@ -121,7 +121,7 @@ namespace TrelloDotNet
             {
                 needGet = true;
                 getCardOptions.IncludeCustomFieldItems = true;
-                foreach (var customField in options.CustomFields)
+                foreach (AddCardOptionsCustomField customField in options.CustomFields)
                 {
                     switch (customField.Field.Type)
                     {
@@ -172,7 +172,7 @@ namespace TrelloDotNet
                 throw new TrelloApiException("Could not find your inbox", string.Empty);
             }
 
-            var input = new Card(inbox.ListId, options.Name, options.Description);
+            Card input = new Card(inbox.ListId, options.Name, options.Description);
             if (options.Start.HasValue)
             {
                 input.Start = options.Start.Value;
@@ -238,7 +238,7 @@ namespace TrelloDotNet
         /// <returns>The New Card</returns>
         public async Task<Card> AddCardFromTemplateAsync(AddCardFromTemplateOptions options, CancellationToken cancellationToken = default)
         {
-            var nameOnNewCard = !string.IsNullOrWhiteSpace(options.Name)
+            string nameOnNewCard = !string.IsNullOrWhiteSpace(options.Name)
                 ? options.Name
                 : (await GetCardAsync(options.SourceTemplateCardId, new GetCardOptions
                 {
@@ -264,7 +264,7 @@ namespace TrelloDotNet
         public async Task<Card> CopyCardAsync(CopyCardOptions options, CancellationToken cancellationToken = default)
 
         {
-            var nameOnNewCard = !string.IsNullOrWhiteSpace(options.Name)
+            string nameOnNewCard = !string.IsNullOrWhiteSpace(options.Name)
                 ? options.Name
                 : (await GetCardAsync(options.SourceCardId, new GetCardOptions
                 {
@@ -294,8 +294,8 @@ namespace TrelloDotNet
                 }
                 else
                 {
-                    var keepStrings = new List<string>();
-                    var enumValues = Enum.GetValues(typeof(CopyCardOptionsToKeep)).Cast<CopyCardOptionsToKeep>().ToList();
+                    List<string> keepStrings = new List<string>();
+                    List<CopyCardOptionsToKeep> enumValues = Enum.GetValues(typeof(CopyCardOptionsToKeep)).Cast<CopyCardOptionsToKeep>().ToList();
                     foreach (CopyCardOptionsToKeep toKeep in enumValues.Where(x => x != CopyCardOptionsToKeep.All))
                     {
                         if (keep.HasFlag(toKeep))
@@ -345,7 +345,7 @@ namespace TrelloDotNet
                 position = options.NamedPosition.Value == NamedPosition.Bottom ? "bottom" : "top";
             }
 
-            var parameters = new List<QueryParameter>
+            List<QueryParameter> parameters = new List<QueryParameter>
             {
                 new QueryParameter("idList", options.TargetListId),
                 new QueryParameter("name", sourceCard.ShortUrl),
@@ -355,7 +355,7 @@ namespace TrelloDotNet
                 new QueryParameter("cardRole", "mirror"),
             };
 
-            var result = await _apiRequestController.Post<Card>($"{UrlPaths.Cards}", cancellationToken, parameters.ToArray());
+            Card result = await _apiRequestController.Post<Card>($"{UrlPaths.Cards}", cancellationToken, parameters.ToArray());
             return result;
         }
 
@@ -389,14 +389,14 @@ namespace TrelloDotNet
         /// <param name="cancellationToken">CancellationToken</param>
         public async Task<Card> UpdateCardAsync(string cardId, List<CardUpdate> valuesToUpdate, CancellationToken cancellationToken = default)
         {
-            var parameters = valuesToUpdate.Select(x => x.ToQueryParameter()).ToList();
+            List<QueryParameter> parameters = valuesToUpdate.Select(x => x.ToQueryParameter()).ToList();
             QueryParameter coverParameter = parameters.FirstOrDefault(x => x.Name == "cover");
             if (coverParameter != null && !string.IsNullOrWhiteSpace(coverParameter.GetRawStringValue()))
             {
                 //Special Cover Card
                 parameters.Remove(coverParameter);
                 CardCover cover = JsonSerializer.Deserialize<CardCover>(coverParameter.GetRawStringValue());
-                var payload = GeneratePayloadForCoverUpdate(cover, parameters);
+                string payload = GeneratePayloadForCoverUpdate(cover, parameters);
                 return await _apiRequestController.PutWithJsonPayload<Card>($"{UrlPaths.Cards}/{cardId}", cancellationToken, payload, parameters.ToArray());
             }
 
@@ -421,7 +421,7 @@ namespace TrelloDotNet
         /// <param name="cancellationToken">Cancellation Token</param>
         public async Task MoveAllCardsInListAsync(string currentListId, string newListId, CancellationToken cancellationToken = default)
         {
-            var newList = await GetListAsync(newListId, cancellationToken); //Get the new list's BoardId so the user do not need to provide it.
+            List newList = await GetListAsync(newListId, cancellationToken); //Get the new list's BoardId so the user do not need to provide it.
             await _apiRequestController.Post($"{UrlPaths.Lists}/{currentListId}/moveAllCards", cancellationToken,
                 0,
                 new QueryParameter("idBoard", newList.BoardId),
@@ -526,7 +526,7 @@ namespace TrelloDotNet
 
             if (options.IncludeList)
             {
-                var lists = await GetListsOnBoardAsync(boardId, cancellationToken);
+                List<List> lists = await GetListsOnBoardAsync(boardId, cancellationToken);
                 foreach (Card card in cards)
                 {
                     card.List = lists.FirstOrDefault(x => x.Id == card.ListId);
@@ -535,7 +535,7 @@ namespace TrelloDotNet
 
             if (options.IncludeBoard)
             {
-                var board = await GetBoardAsync(boardId, cancellationToken);
+                Board board = await GetBoardAsync(boardId, cancellationToken);
                 foreach (Card card in cards)
                 {
                     card.Board = board;
@@ -580,10 +580,10 @@ namespace TrelloDotNet
                 }
             }
 
-            var cards = await _apiRequestController.Get<List<Card>>(GetUrlBuilder.GetCardsInList(listId), cancellationToken, options.GetParameters(true));
+            List<Card> cards = await _apiRequestController.Get<List<Card>>(GetUrlBuilder.GetCardsInList(listId), cancellationToken, options.GetParameters(true));
             if (options.IncludeList)
             {
-                var list = await GetListAsync(listId, cancellationToken);
+                List list = await GetListAsync(listId, cancellationToken);
                 foreach (Card card in cards)
                 {
                     card.ListId = listId;
@@ -593,7 +593,7 @@ namespace TrelloDotNet
 
             if (options.IncludeBoard && cards.Count > 0)
             {
-                var board = await GetBoardAsync(cards[0].BoardId, cancellationToken);
+                Board board = await GetBoardAsync(cards[0].BoardId, cancellationToken);
                 foreach (Card card in cards)
                 {
                     card.Board = board;
@@ -687,12 +687,12 @@ namespace TrelloDotNet
                 }
             }
 
-            var cards = await _apiRequestController.Get<List<Card>>(GetUrlBuilder.GetCardsForMember(memberId), cancellationToken, options.GetParameters(true));
+            List<Card> cards = await _apiRequestController.Get<List<Card>>(GetUrlBuilder.GetCardsForMember(memberId), cancellationToken, options.GetParameters(true));
             if (options.IncludeList)
             {
-                var boardsToGetListsFor = cards.Select(x => x.BoardId).Distinct().ToArray();
+                string[] boardsToGetListsFor = cards.Select(x => x.BoardId).Distinct().ToArray();
                 List<List> lists = new List<List>();
-                foreach (var boardId in boardsToGetListsFor)
+                foreach (string boardId in boardsToGetListsFor)
                 {
                     lists.AddRange(await GetListsOnBoardAsync(boardId, cancellationToken));
                 }
@@ -705,8 +705,8 @@ namespace TrelloDotNet
 
             if (options.IncludeBoard)
             {
-                var boardIds = cards.Select(x => x.BoardId).Distinct().ToList();
-                var boards = await GetBoardsAsync(boardIds, cancellationToken);
+                List<string> boardIds = cards.Select(x => x.BoardId).Distinct().ToList();
+                List<Board> boards = await GetBoardsAsync(boardIds, cancellationToken);
                 foreach (Card card in cards)
                 {
                     card.Board = boards.FirstOrDefault(x => x.Id == card.BoardId);
@@ -789,7 +789,7 @@ namespace TrelloDotNet
         /// <returns></returns>
         public async Task<Card> MoveCardToListAsync(string cardId, string newListId, MoveCardToListOptions options, CancellationToken cancellationToken = default)
         {
-            var parameters = new List<CardUpdate> { CardUpdate.List(newListId) };
+            List<CardUpdate> parameters = new List<CardUpdate> { CardUpdate.List(newListId) };
             if (options.NamedPositionOnNewList.HasValue)
             {
                 parameters.Add(CardUpdate.Position(options.NamedPositionOnNewList.Value));
@@ -860,7 +860,7 @@ namespace TrelloDotNet
             }
 
             List<CardUpdate> parameters = new List<CardUpdate> { CardUpdate.Board(newBoardId) };
-            var newListId = options.NewListId;
+            string newListId = options.NewListId;
             if (string.IsNullOrWhiteSpace(newListId))
             {
                 //No list specified, so we need to find the first list on the board
@@ -886,7 +886,7 @@ namespace TrelloDotNet
             switch (options.MemberOptions)
             {
                 case MoveCardToBoardOptionsMemberOptions.KeepMembersAlsoOnNewBoardAndRemoveRest:
-                    var existingMemberIdsOnNewBoard = (await GetMembersOfBoardAsync(newBoardId, cancellationToken)).Select(x => x.Id);
+                    IEnumerable<string> existingMemberIdsOnNewBoard = (await GetMembersOfBoardAsync(newBoardId, cancellationToken)).Select(x => x.Id);
                     card.MemberIds = card.MemberIds.Intersect(existingMemberIdsOnNewBoard).ToList();
                     break;
                 case MoveCardToBoardOptionsMemberOptions.RemoveAllMembersOnCard:
@@ -903,7 +903,7 @@ namespace TrelloDotNet
                 {
                     case MoveCardToBoardOptionsLabelOptions.MigrateToLabelsOfSameNameAndColorAndCreateMissing:
                     {
-                        var existingLabels = await GetLabelsOfBoardAsync(newBoardId, cancellationToken);
+                        List<Label> existingLabels = await GetLabelsOfBoardAsync(newBoardId, cancellationToken);
                         foreach (Label cardLabel in card.Labels)
                         {
                             Label existingLabel = existingLabels.FirstOrDefault(x => x.Name == cardLabel.Name && x.Color == cardLabel.Color);
@@ -923,7 +923,7 @@ namespace TrelloDotNet
                     }
                     case MoveCardToBoardOptionsLabelOptions.MigrateToLabelsOfSameNameAndColorAndRemoveMissing:
                     {
-                        var existingLabels = await GetLabelsOfBoardAsync(newBoardId, cancellationToken);
+                        List<Label> existingLabels = await GetLabelsOfBoardAsync(newBoardId, cancellationToken);
                         foreach (Label cardLabel in card.Labels)
                         {
                             Label existingLabel = existingLabels.FirstOrDefault(x => x.Name == cardLabel.Name && x.Color == cardLabel.Color);
@@ -937,7 +937,7 @@ namespace TrelloDotNet
                     }
                     case MoveCardToBoardOptionsLabelOptions.MigrateToLabelsOfSameNameAndCreateMissing:
                     {
-                        var existingLabels = await GetLabelsOfBoardAsync(newBoardId, cancellationToken);
+                        List<Label> existingLabels = await GetLabelsOfBoardAsync(newBoardId, cancellationToken);
                         foreach (Label cardLabel in card.Labels)
                         {
                             Label existingLabel = existingLabels.FirstOrDefault(x => x.Name == cardLabel.Name);
@@ -957,7 +957,7 @@ namespace TrelloDotNet
                     }
                     case MoveCardToBoardOptionsLabelOptions.MigrateToLabelsOfSameNameAndRemoveMissing:
                     {
-                        var existingLabels = await GetLabelsOfBoardAsync(newBoardId, cancellationToken);
+                        List<Label> existingLabels = await GetLabelsOfBoardAsync(newBoardId, cancellationToken);
                         foreach (Label cardLabel in card.Labels)
                         {
                             Label existingLabel = existingLabels.FirstOrDefault(x => x.Name == cardLabel.Name);

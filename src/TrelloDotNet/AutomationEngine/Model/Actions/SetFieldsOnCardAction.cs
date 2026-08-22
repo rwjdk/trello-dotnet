@@ -39,9 +39,9 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform SetFieldsOnCardAction as WebhookAction did not involve a Card");
             }
 
-            var card = await webhookAction.Data.Card.GetAsync();
-            var queryParametersToAdd = new List<CardUpdate>();
-            foreach (var fieldValue in FieldValues)
+            Card card = await webhookAction.Data.Card.GetAsync();
+            List<CardUpdate> queryParametersToAdd = new List<CardUpdate>();
+            foreach (ISetCardFieldValue fieldValue in FieldValues)
             {
                 QueryParameter queryParameter = fieldValue.GetQueryParameter(card);
                 if (queryParameter != null)

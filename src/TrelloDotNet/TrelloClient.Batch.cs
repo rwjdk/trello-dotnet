@@ -108,15 +108,15 @@ namespace TrelloDotNet
         /// <exception cref="TrelloApiException"></exception>
         private async Task<List<T>> ExecuteBatchedRequestAsync<T>(List<string> urls, CancellationToken cancellationToken = default)
         {
-            var batchResult = await GetBatchedRequestDataAsync(urls, cancellationToken);
+            BatchResultSummary batchResult = await GetBatchedRequestDataAsync(urls, cancellationToken);
             if (batchResult.ErrorCount == 0)
             {
                 return batchResult.Results.Select(x => x.StatusCode == 200 ? x.GetData<T>() : default).ToList();
             }
 
             //Error scenario
-            var errors = new List<string>();
-            foreach (var result in batchResult.Results)
+            List<string> errors = new List<string>();
+            foreach (BatchResultForUrl result in batchResult.Results)
             {
                 if (result.StatusCode != 200)
                 {
@@ -148,10 +148,10 @@ namespace TrelloDotNet
             List<BatchResultForUrl> batchResultForUrls = new List<BatchResultForUrl>();
             while (batchResultForUrls.Count < urls.Count)
             {
-                var urlsToProcessThisBatch = urls.Skip(batchResultForUrls.Count).Take(10).ToList();
-                var preparedUrls = urlsToProcessThisBatch.Select(url => url.StartsWith("/") ? url : $"/{url}").ToList();
+                List<string> urlsToProcessThisBatch = urls.Skip(batchResultForUrls.Count).Take(10).ToList();
+                List<string> preparedUrls = urlsToProcessThisBatch.Select(url => url.StartsWith("/") ? url : $"/{url}").ToList();
                 string json = await _apiRequestController.Get("batch", cancellationToken, 0, new QueryParameter("urls", string.Join(",", preparedUrls)));
-                var results = JsonSerializer.Deserialize<List<BatchResultForUrl>>(json);
+                List<BatchResultForUrl> results = JsonSerializer.Deserialize<List<BatchResultForUrl>>(json);
                 //Attach URL to each result
                 for (int i = 0; i < results.Count; i++)
                 {
@@ -179,8 +179,8 @@ namespace TrelloDotNet
             List<BatchResultForUrl> batchResultForUrls = new List<BatchResultForUrl>();
             while (batchResultForUrls.Count < requests.Count)
             {
-                var urlsToProcessThisBatch = requests.Skip(batchResultForUrls.Count).Take(10).ToList();
-                var preparedUrls = urlsToProcessThisBatch.Select(x => x.Url.StartsWith("/") ? x.Url : $"/{x.Url}").ToList();
+                List<BatchRequest> urlsToProcessThisBatch = requests.Skip(batchResultForUrls.Count).Take(10).ToList();
+                List<string> preparedUrls = urlsToProcessThisBatch.Select(x => x.Url.StartsWith("/") ? x.Url : $"/{x.Url}").ToList();
                 string json = await _apiRequestController.Get("batch", cancellationToken, 0, new QueryParameter("urls", string.Join(",", preparedUrls)));
                 List<BatchResultForUrl> results = JsonSerializer.Deserialize<List<BatchResultForUrl>>(json);
 
@@ -190,7 +190,7 @@ namespace TrelloDotNet
                     results[i].Url = requests[i + batchResultForUrls.Count].Url;
                 }
 
-                var batchResult = new BatchResultSummary(results);
+                BatchResultSummary batchResult = new BatchResultSummary(results);
                 if (batchResult.ErrorCount > 0)
                 {
                     throw new Exception($"Error getting Trello data: {string.Join(" | ", batchResult.Errors)}");

@@ -41,9 +41,9 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform RemoveCardDataAction as WebhookAction did not involve a Card");
             }
 
-            var card = await webhookAction.Data.Card.GetAsync();
-            var queryParametersToUpdate = new List<CardUpdate>();
-            foreach (var dataType in DataToRemove)
+            Card card = await webhookAction.Data.Card.GetAsync();
+            List<CardUpdate> queryParametersToUpdate = new List<CardUpdate>();
+            foreach (RemoveCardDataType dataType in DataToRemove)
             {
                 switch (dataType)
                 {
@@ -104,7 +104,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
 
                         break;
                     case RemoveCardDataType.AllChecklists:
-                        var checklists = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(card.Id);
+                        List<Checklist> checklists = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(card.Id);
                         foreach (Checklist checklist in checklists)
                         {
                             await webhookAction.TrelloClient.DeleteChecklistAsync(checklist.Id);
@@ -112,7 +112,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
 
                         break;
                     case RemoveCardDataType.AllAttachments:
-                        var attachments = await webhookAction.TrelloClient.GetAttachmentsOnCardAsync(card.Id);
+                        List<Attachment> attachments = await webhookAction.TrelloClient.GetAttachmentsOnCardAsync(card.Id);
                         foreach (Attachment attachment in attachments)
                         {
                             await webhookAction.TrelloClient.DeleteAttachmentOnCardAsync(card.Id, attachment.Id);
@@ -120,7 +120,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
 
                         break;
                     case RemoveCardDataType.AllComments:
-                        var comments = await webhookAction.TrelloClient.GetAllCommentsOnCardAsync(card.Id);
+                        List<TrelloAction> comments = await webhookAction.TrelloClient.GetAllCommentsOnCardAsync(card.Id);
                         foreach (TrelloAction comment in comments)
                         {
                             await webhookAction.TrelloClient.DeleteCommentActionAsync(comment.Id);
@@ -128,7 +128,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
 
                         break;
                     case RemoveCardDataType.AllStickers:
-                        var stickers = await webhookAction.TrelloClient.GetStickersOnCardAsync(card.Id);
+                        List<Sticker> stickers = await webhookAction.TrelloClient.GetStickersOnCardAsync(card.Id);
                         foreach (Sticker sticker in stickers)
                         {
                             await webhookAction.TrelloClient.DeleteStickerAsync(card.Id, sticker.Id);

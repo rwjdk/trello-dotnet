@@ -3,6 +3,7 @@ using TrelloDotNet.AutomationEngine.Interface;
 using TrelloDotNet.AutomationEngine.Model;
 using TrelloDotNet.AutomationEngine.Model.Actions;
 using TrelloDotNet.Model;
+using TrelloDotNet.Model.Actions;
 using TrelloDotNet.Model.Options.AddCardOptions;
 using TrelloDotNet.Model.Options.GetCardOptions;
 using TrelloDotNet.Model.Webhook;
@@ -17,17 +18,17 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task TestRemoveChecklistToCardAction()
     {
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
-        var checklist = new Checklist("My Checklist", [new("A"), new("B")]);
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
+        Checklist checklist = new Checklist("My Checklist", [new("A"), new("B")]);
         await TrelloClient.AddChecklistAsync(card.Id, checklist);
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
         IAutomationAction action = new RemoveChecklistFromCardAction(checklist.Name);
         await action.PerformActionAsync(webhookAction, processingResult);
         await action.PerformActionAsync(webhookAction, processingResult);
-        var checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
+        List<Checklist> checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
 
         Assert.Empty(checklists);
         Assert.Equal(1, processingResult.ActionsExecuted);
@@ -39,16 +40,16 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task TestAddChecklistToCardAction()
     {
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
-        var checklistToAdd = new Checklist("My Checklist", [new("A"), new("B")]);
+        Checklist checklistToAdd = new Checklist("My Checklist", [new("A"), new("B")]);
         IAutomationAction action = new AddChecklistToCardAction(checklistToAdd);
 
         await action.PerformActionAsync(webhookAction, processingResult);
-        var checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
+        List<Checklist> checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
         Assert.Single(checklists);
         Assert.Equal(1, processingResult.ActionsExecuted);
         Assert.Equal(0, processingResult.ActionsSkipped);
@@ -65,16 +66,16 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task TestAddChecklistToCardActionWithKeywords()
     {
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
-        var checklistToAdd = new Checklist("My Checklist **ID** | **NAME**", [new("A | **ID** | **NAME**"), new("B | **ID** | **NAME**")]);
+        Checklist checklistToAdd = new Checklist("My Checklist **ID** | **NAME**", [new("A | **ID** | **NAME**"), new("B | **ID** | **NAME**")]);
         IAutomationAction action = new AddChecklistToCardAction(checklistToAdd);
 
         await action.PerformActionAsync(webhookAction, processingResult);
-        var checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
+        List<Checklist> checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
         Assert.Single(checklists);
         Assert.Equal($"My Checklist {card.Id} | {card.Name}", checklists[0].Name);
         Assert.Equal($"A | {card.Id} | {card.Name}", checklists[0].Items[0].Name);
@@ -90,20 +91,20 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task TestAddChecklistToCardActionToExsitingList()
     {
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
         await TrelloClient.AddChecklistAsync(card.Id, new Checklist("My Checklist", [new("C")]));
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
-        var checklistToAdd = new Checklist("My Checklist", [new("A"), new("B")]);
+        Checklist checklistToAdd = new Checklist("My Checklist", [new("A"), new("B")]);
         IAutomationAction action = new AddChecklistToCardAction(checklistToAdd)
         {
             AddCheckItemsToExistingChecklist = true,
         };
 
         await action.PerformActionAsync(webhookAction, processingResult);
-        var checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
+        List<Checklist> checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
         Assert.Single(checklists);
         Assert.Equal(3, checklists.First().Items.Count);
         Assert.Equal(1, processingResult.ActionsExecuted);
@@ -121,15 +122,15 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task TestAddStickerToCardAction()
     {
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
         const StickerDefaultImageId stickerDefaultImageId = StickerDefaultImageId.Check;
         IAutomationAction action = new AddStickerToCardAction(new Sticker(stickerDefaultImageId));
         await action.PerformActionAsync(webhookAction, processingResult);
-        var stickers = await TrelloClient.GetStickersOnCardAsync(card.Id);
+        List<Sticker> stickers = await TrelloClient.GetStickersOnCardAsync(card.Id);
         Assert.Single(stickers);
         Assert.Equal(stickerDefaultImageId, stickers.First().ImageIdAsDefaultEnum);
         Assert.Equal(1, processingResult.ActionsExecuted);
@@ -149,16 +150,16 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task TestRemoveCoverFromCardAction()
     {
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
         await TrelloClient.AddCoverToCardAsync(card.Id, new CardCover(CardCoverColor.Lime, CardCoverSize.Normal));
 
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
         IAutomationAction action = new RemoveCoverFromCardAction();
         await action.PerformActionAsync(webhookAction, processingResult);
-        var cardAfterAction = await TrelloClient.GetCardAsync(card.Id);
+        Card cardAfterAction = await TrelloClient.GetCardAsync(card.Id);
         Assert.Null(cardAfterAction.Cover.Color);
         Assert.Equal(1, processingResult.ActionsExecuted);
         Assert.Equal(0, processingResult.ActionsSkipped);
@@ -169,18 +170,18 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task TestSetFieldsOnCardAction()
     {
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
         const string orgName = "Some Card";
         const string someDescription = "Some Description";
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, orgName, someDescription));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, orgName, someDescription));
         await TrelloClient.AddStickerToCardAsync(card.Id, new Sticker(StickerDefaultImageId.Check));
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
         const string name = "x **NAME**";
         const string description = "y **DESCRIPTION**";
-        var start = DateTimeOffset.UtcNow;
-        var due = start.AddDays(2);
+        DateTimeOffset start = DateTimeOffset.UtcNow;
+        DateTimeOffset due = start.AddDays(2);
         const bool dueComplete = true;
         IAutomationAction action = new SetFieldsOnCardAction(
             new SetCardNameFieldValue(name),
@@ -191,7 +192,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
 
         await action.PerformActionAsync(webhookAction, processingResult);
 
-        var cardAfterAction = await TrelloClient.GetCardAsync(card.Id);
+        Card cardAfterAction = await TrelloClient.GetCardAsync(card.Id);
         Assert.Equal("x Some Card", cardAfterAction.Name);
         Assert.Equal("y Some Description", cardAfterAction.Description);
         Assert.Equal(start.Date, cardAfterAction.Start!.Value.Date);
@@ -208,7 +209,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
 
         await actionThatIsSkipped.PerformActionAsync(webhookAction, processingResult);
 
-        var cardAfterSkipAction = await TrelloClient.GetCardAsync(card.Id);
+        Card cardAfterSkipAction = await TrelloClient.GetCardAsync(card.Id);
         Assert.Equal("x Some Card", cardAfterSkipAction.Name);
         Assert.Equal("y Some Description", cardAfterSkipAction.Description);
         Assert.Equal(start.Date, cardAfterSkipAction.Start!.Value.Date);
@@ -229,7 +230,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
 
         await actionThatIsOverwrite.PerformActionAsync(webhookAction, processingResult);
 
-        var cardAfterOverwriteAction = await TrelloClient.GetCardAsync(card.Id);
+        Card cardAfterOverwriteAction = await TrelloClient.GetCardAsync(card.Id);
         Assert.Equal("xxx", cardAfterOverwriteAction.Name);
         Assert.Equal("yyy", cardAfterOverwriteAction.Description);
         Assert.Equal(start.AddDays(1).Date, cardAfterOverwriteAction.Start!.Value.Date);
@@ -243,18 +244,18 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task TestRemoveStickerFromCardAction()
     {
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
         await TrelloClient.AddStickerToCardAsync(card.Id, new Sticker(StickerDefaultImageId.Check));
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
         IAutomationAction action = new RemoveStickerFromCardAction(StickerDefaultImageId.Check);
         await action.PerformActionAsync(webhookAction, processingResult);
 
         action = new RemoveStickerFromCardAction("check"); //Second call to test no sticker exists
         await action.PerformActionAsync(webhookAction, processingResult);
-        var stickers = await TrelloClient.GetStickersOnCardAsync(card.Id);
+        List<Sticker> stickers = await TrelloClient.GetStickersOnCardAsync(card.Id);
 
         Assert.Empty(stickers);
         Assert.Equal(1, processingResult.ActionsExecuted);
@@ -266,16 +267,16 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task AddCoverOnCardAction()
     {
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card"));
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
         const CardCoverColor cardCoverColor = CardCoverColor.Black;
         const CardCoverSize cardCoverSize = CardCoverSize.Full;
         IAutomationAction action = new AddCoverOnCardAction(new CardCover(cardCoverColor, cardCoverSize));
         await action.PerformActionAsync(webhookAction, processingResult);
-        var cardAfterPerformAction = await TrelloClient.GetCardAsync(card.Id);
+        Card cardAfterPerformAction = await TrelloClient.GetCardAsync(card.Id);
         Assert.Equal(cardCoverColor, cardAfterPerformAction.Cover.Color);
         Assert.Equal(cardCoverSize, cardAfterPerformAction.Cover.Size);
         Assert.Equal(1, processingResult.ActionsExecuted);
@@ -287,10 +288,10 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task RemoveCardDataAction()
     {
-        var labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
+        List<Label> labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
         Member member = await TrelloClient.GetTokenMemberAsync();
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card")
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card")
         {
             Due = DateTimeOffset.Now.AddDays(1),
             DueComplete = true,
@@ -306,8 +307,8 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         await TrelloClient.AddStickerToCardAsync(card.Id, new Sticker(StickerDefaultImageId.Check));
         await TrelloClient.AddAttachmentToCardAsync(card.Id, new AttachmentUrlLink("https://www.google.com", "Google"));
 
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card);
 
         IAutomationAction action = new RemoveCardDataAction(
             RemoveCardDataType.AllAttachments,
@@ -324,7 +325,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         );
         await action.PerformActionAsync(webhookAction, processingResult);
 
-        var cardAfterPerformAction = await TrelloClient.GetCardAsync(card.Id, new GetCardOptions
+        Card cardAfterPerformAction = await TrelloClient.GetCardAsync(card.Id, new GetCardOptions
         {
             IncludeAttachments = GetCardOptionsIncludeAttachments.True
         });
@@ -337,7 +338,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         Assert.Empty(cardAfterPerformAction.MemberIds);
         Assert.Empty(cardAfterPerformAction.LabelIds);
         Assert.Empty(cardAfterPerformAction.ChecklistIds);
-        var strickers = await TrelloClient.GetStickersOnCardAsync(cardAfterPerformAction.Id);
+        List<Sticker> strickers = await TrelloClient.GetStickersOnCardAsync(cardAfterPerformAction.Id);
         Assert.Empty(strickers);
         Assert.Equal(1, processingResult.ActionsExecuted);
         Assert.Equal(0, processingResult.ActionsSkipped);
@@ -357,10 +358,10 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         Member member = await TrelloClient.GetTokenMemberAsync();
         Card card = await AddDummyCard(_board.Id, "AddMembersToCardAction");
 
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
 
-        var action = new AddMembersToCardAction(member.FullName) { TreatMemberNameAsId = true };
+        AddMembersToCardAction action = new AddMembersToCardAction(member.FullName) { TreatMemberNameAsId = true };
         await action.PerformActionAsync(webhookAction, processingResult);
         Assert.Equal(1, processingResult.ActionsExecuted);
         Assert.Equal(0, processingResult.ActionsSkipped);
@@ -382,16 +383,16 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     public async Task RemoveMembersFromCardAction()
     {
         Member member = await TrelloClient.GetTokenMemberAsync();
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card")
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card")
         {
             MemberIds = [member.Id]
         });
 
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
 
-        var action = new RemoveMembersFromCardAction(member.FullName) { TreatMemberNameAsId = true };
+        RemoveMembersFromCardAction action = new RemoveMembersFromCardAction(member.FullName) { TreatMemberNameAsId = true };
         await action.PerformActionAsync(webhookAction, processingResult);
         Assert.Equal(1, processingResult.ActionsExecuted);
         Assert.Equal(0, processingResult.ActionsSkipped);
@@ -405,16 +406,16 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task AddLabelsToCardAction()
     {
-        var labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
+        List<Label> labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
         Label label = labels.First();
         label.Name = Guid.NewGuid().ToString();
         label = await TrelloClient.UpdateLabelAsync(label);
         Card card = await AddDummyCard(_board.Id, "AddLabelsToCardAction");
 
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
 
-        var action = new AddLabelsToCardAction(label.Name) { TreatLabelNameAsId = true };
+        AddLabelsToCardAction action = new AddLabelsToCardAction(label.Name) { TreatLabelNameAsId = true };
         await action.PerformActionAsync(webhookAction, processingResult);
         Assert.Equal(1, processingResult.ActionsExecuted);
         Assert.Equal(0, processingResult.ActionsSkipped);
@@ -435,20 +436,20 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task RemoveLabelsFromCardAction()
     {
-        var labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
+        List<Label> labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
         Label label = labels.Last();
         label.Name = Guid.NewGuid().ToString();
         label = await TrelloClient.UpdateLabelAsync(label);
-        var list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
-        var card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card")
+        List list = await TrelloClient.AddListAsync(new List(Guid.NewGuid().ToString(), _board.Id));
+        Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, "Some Card")
         {
             LabelIds = [label.Id]
         });
 
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
 
-        var action = new RemoveLabelsFromCardAction(label.Name) { TreatLabelNameAsId = true };
+        RemoveLabelsFromCardAction action = new RemoveLabelsFromCardAction(label.Name) { TreatLabelNameAsId = true };
         await action.PerformActionAsync(webhookAction, processingResult);
         Assert.Equal(1, processingResult.ActionsExecuted);
         Assert.Equal(0, processingResult.ActionsSkipped);
@@ -464,16 +465,16 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     {
         Card card = await AddDummyCard(_board.Id, "AddCommentToCardAction");
 
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
 
-        var comment = Guid.NewGuid().ToString();
-        var action = new AddCommentToCardAction(comment);
+        string comment = Guid.NewGuid().ToString();
+        AddCommentToCardAction action = new AddCommentToCardAction(comment);
         await action.PerformActionAsync(webhookAction, processingResult);
         Assert.Equal(1, processingResult.ActionsExecuted);
         Assert.Equal(0, processingResult.ActionsSkipped);
 
-        var comments = await TrelloClient.GetAllCommentsOnCardAsync(card.Id);
+        List<TrelloAction> comments = await TrelloClient.GetAllCommentsOnCardAsync(card.Id);
         Assert.Single(comments);
         Assert.Contains(comments, x => x.Data.Text == comment);
 
@@ -483,10 +484,10 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task StopProcessingFurtherAction()
     {
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated);
 
-        var action = new StopProcessingFurtherAction();
+        StopProcessingFurtherAction action = new StopProcessingFurtherAction();
         await Assert.ThrowsAsync<StopProcessingFurtherActionException>(async () => await action.PerformActionAsync(webhookAction, processingResult));
     }
 
@@ -495,7 +496,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [InlineData(false)]
     public async Task AddChecklistToCardIfLabelMatchAction(bool treatLabelNameAsId)
     {
-        var labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
+        List<Label> labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
         Label label1 = labels[1];
         Label label2 = labels[2];
         label1.Name = Guid.NewGuid().ToString();
@@ -506,8 +507,8 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         Card card = await AddDummyCard(_board.Id, "AddChecklistToCardIfLabelMatchAction");
         await TrelloClient.AddLabelsToCardAsync(card.Id, label1.Id);
 
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
 
         AddChecklistToCardIfLabelMatchAction action;
         if (treatLabelNameAsId)
@@ -527,7 +528,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
 
         await action.PerformActionAsync(webhookAction, processingResult);
 
-        var checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
+        List<Checklist> checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
         Assert.Single(checklists);
         Assert.Contains(checklists, x => x.Name == "My Checklist1");
 
@@ -539,7 +540,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [InlineData(false)]
     public async Task AddChecklistToCardIfLabelMatchActionWithExclude(bool treatLabelNameAsId)
     {
-        var labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
+        List<Label> labels = await TrelloClient.GetLabelsOfBoardAsync(_board.Id);
         Label label3 = labels[3];
         Label label4 = labels[4];
         Label label5 = labels[5];
@@ -555,8 +556,8 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         await TrelloClient.AddLabelsToCardAsync(card.Id, label4.Id);
         await TrelloClient.AddLabelsToCardAsync(card.Id, label5.Id);
 
-        var processingResult = new ProcessingResult();
-        var webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
+        ProcessingResult processingResult = new ProcessingResult();
+        WebhookAction webhookAction = WebhookAction.CreateDummy(TrelloClient, WebhookAction.WebhookActionDummyCreationScenario.CardUpdated, cardToSimulate: card, boardToSimulate: _board);
 
         AddChecklistToCardIfLabelMatchAction action;
         if (treatLabelNameAsId)
@@ -576,7 +577,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
 
         await action.PerformActionAsync(webhookAction, processingResult);
 
-        var checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
+        List<Checklist> checklists = await TrelloClient.GetChecklistsOnCardAsync(card.Id);
         Assert.Single(checklists);
         Assert.Contains(checklists, x => x.Name == "My Checklist1");
 

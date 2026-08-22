@@ -13,7 +13,7 @@ public class MemberTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         Member member = await TrelloClient.GetTokenMemberAsync();
         (List list, Card card) = await AddDummyCardAndList(_board.Id, "GetCardsForMember");
         await TrelloClient.AddMembersToCardAsync(card.Id, member.Id);
-        var cardForMember = await TrelloClient.GetCardsForMemberAsync(member.Id);
+        List<Card> cardForMember = await TrelloClient.GetCardsForMemberAsync(member.Id);
         Assert.Contains(cardForMember, x => x.Id == card.Id && x.ListId == list.Id);
     }
 
@@ -21,7 +21,7 @@ public class MemberTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     public async Task GetBoardsForMember()
     {
         Member member = await TrelloClient.GetTokenMemberAsync();
-        var boards = await TrelloClient.GetBoardsForMemberAsync(member.Id);
+        List<Board> boards = await TrelloClient.GetBoardsForMemberAsync(member.Id);
         Assert.Contains(boards, x => x.Id == _board.Id);
     }
 
@@ -29,36 +29,37 @@ public class MemberTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     public async Task GetOrganizationsForMember()
     {
         Member member = await TrelloClient.GetTokenMemberAsync();
-        var organizations = await TrelloClient.GetOrganizationsForMemberAsync(member.Id);
+        List<Organization> organizations = await TrelloClient.GetOrganizationsForMemberAsync(member.Id);
         Assert.Contains(organizations, x => x.Id == _organization.Id);
     }
 
     [Fact]
     public async Task AddRemoveChangeMemberOnBoard()
     {
-        const string memberId = "64ce44c552fd41aa6937e866"; //Test_user rwj_test1@outlook.com
+        const string memberId = "69062db07766a797a98c6a13"; //Test_user ai@rwj.dk
+
         await TrelloClient.AddMemberToBoardAsync(_board.Id, memberId, MembershipType.Normal);
 
-        var members = await TrelloClient.GetMembersOfBoardAsync(_board.Id);
+        List<Member> members = await TrelloClient.GetMembersOfBoardAsync(_board.Id);
         Assert.Contains(members, x => x.Id == memberId);
 
-        var memberships = await TrelloClient.GetMembershipsOfBoardAsync(_board.Id);
+        List<Membership> memberships = await TrelloClient.GetMembershipsOfBoardAsync(_board.Id);
         Assert.Contains(memberships, x => x.MemberId == memberId && x.MemberType == MembershipType.Normal);
         Membership membership = memberships.Single(x => x.MemberId == memberId && x.MemberType == MembershipType.Normal);
 
         await TrelloClient.UpdateMembershipTypeOfMemberOnBoardAsync(_board.Id, membership.Id, MembershipType.Admin);
 
-        var membershipsAfter = await TrelloClient.GetMembershipsOfBoardAsync(_board.Id);
+        List<Membership> membershipsAfter = await TrelloClient.GetMembershipsOfBoardAsync(_board.Id);
         Assert.Contains(membershipsAfter, x => x.MemberId == memberId && x.MemberType == MembershipType.Admin);
 
         await TrelloClient.RemoveMemberFromBoardAsync(_board.Id, memberId);
 
-        var membersAfter = await TrelloClient.GetMembersOfBoardAsync(_board.Id);
+        List<Member> membersAfter = await TrelloClient.GetMembersOfBoardAsync(_board.Id);
         Assert.True(membersAfter.All(x => x.Id != memberId));
 
-        await TrelloClient.InviteMemberToBoardViaEmailAsync(_board.Id, "rwj_test1@outlook.com", MembershipType.Normal);
+        await TrelloClient.InviteMemberToBoardViaEmailAsync(_board.Id, "ai@rwj.dk", MembershipType.Normal);
 
-        var membersAfterInvite = await TrelloClient.GetMembersOfBoardAsync(_board.Id);
+        List<Member> membersAfterInvite = await TrelloClient.GetMembersOfBoardAsync(_board.Id);
         Assert.Contains(membersAfterInvite, x => x.Id == memberId);
     }
 }

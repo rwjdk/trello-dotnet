@@ -12,8 +12,8 @@ namespace TrelloDotNet.Control
                 return null;
             }
 
-            var hexDecimaltimestapThatIsPartOfId = id.Substring(0, 8);
-            var decimalVersionInEpoch = int.Parse(hexDecimaltimestapThatIsPartOfId, NumberStyles.HexNumber);
+            string hexDecimaltimestapThatIsPartOfId = id.Substring(0, 8);
+            int decimalVersionInEpoch = int.Parse(hexDecimaltimestapThatIsPartOfId, NumberStyles.HexNumber);
             return DateTimeOffset.FromUnixTimeSeconds(decimalVersionInEpoch);
         }
     }

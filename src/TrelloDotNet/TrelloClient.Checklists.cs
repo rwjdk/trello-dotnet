@@ -22,21 +22,21 @@ namespace TrelloDotNet
         /// <returns>New or Existing Checklist with same name</returns>
         public async Task<Checklist> AddChecklistAsync(string cardId, Checklist checklist, bool ignoreIfAChecklistWithThisNameAlreadyExist = false, CancellationToken cancellationToken = default)
         {
-            var template = checklist;
+            Checklist template = checklist;
             if (ignoreIfAChecklistWithThisNameAlreadyExist)
             {
                 //Check if card already have a list with same name
-                var existingOnCard = await GetChecklistsOnCardAsync(cardId, cancellationToken);
-                var existing = existingOnCard.FirstOrDefault(x => x.Name == template.Name);
+                List<Checklist> existingOnCard = await GetChecklistsOnCardAsync(cardId, cancellationToken);
+                Checklist existing = existingOnCard.FirstOrDefault(x => x.Name == template.Name);
                 if (existing != null)
                 {
                     return existing;
                 }
             }
 
-            var checklistParameters = _queryParametersBuilder.GetViaQueryParameterAttributes(template);
+            QueryParameter[] checklistParameters = _queryParametersBuilder.GetViaQueryParameterAttributes(template);
             _queryParametersBuilder.AdjustForNamedPosition(checklistParameters, checklist.NamedPosition);
-            var newChecklist = await _apiRequestController.Post<Checklist>($"{UrlPaths.Cards}/{cardId}/{UrlPaths.Checklists}", cancellationToken, checklistParameters);
+            Checklist newChecklist = await _apiRequestController.Post<Checklist>($"{UrlPaths.Cards}/{cardId}/{UrlPaths.Checklists}", cancellationToken, checklistParameters);
 
             if (template.Items == null)
             {
@@ -46,7 +46,7 @@ namespace TrelloDotNet
             if (template.Items.TrueForAll(x => x.Position == 0)) //Give positions to have the system have same order as in list
             {
                 int position = 1;
-                foreach (var item in template.Items)
+                foreach (ChecklistItem item in template.Items)
                 {
                     item.Position = position;
                     position++;
@@ -67,16 +67,16 @@ namespace TrelloDotNet
         /// <returns>The new Checklist Item</returns>
         public async Task<ChecklistItem> AddChecklistItemAsync(string checklistId, ChecklistItem checkItemToAdd, CancellationToken cancellationToken = default)
         {
-            var parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(checkItemToAdd);
+            QueryParameter[] parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(checkItemToAdd);
             _queryParametersBuilder.AdjustForNamedPosition(parameters, checkItemToAdd.NamedPosition);
             return await _apiRequestController.Post<ChecklistItem>($"{UrlPaths.Checklists}/{checklistId}/{UrlPaths.CheckItems}", cancellationToken, parameters);
         }
 
         internal async Task AddCheckItemsAsync(Checklist existingChecklist, params ChecklistItem[] checkItemsToAdd)
         {
-            foreach (var checkItemParameters in checkItemsToAdd.Select(item =>
+            foreach (QueryParameter[] checkItemParameters in checkItemsToAdd.Select(item =>
                      {
-                         var parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(item);
+                         QueryParameter[] parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(item);
                          _queryParametersBuilder.AdjustForNamedPosition(parameters, item.NamedPosition);
                          return parameters;
                      }))
@@ -112,10 +112,10 @@ namespace TrelloDotNet
             if (ignoreIfAChecklistWithThisNameAlreadyExist)
             {
                 //Find the name of the template (as we are only provided Id)
-                var existingChecklist = await GetChecklistAsync(existingChecklistIdToCopyFrom, cancellationToken);
+                Checklist existingChecklist = await GetChecklistAsync(existingChecklistIdToCopyFrom, cancellationToken);
                 //Check if card already have a list with same name
-                var existingOnCard = await GetChecklistsOnCardAsync(cardId, cancellationToken);
-                var existing = existingOnCard.FirstOrDefault(x => x.Name == existingChecklist.Name);
+                List<Checklist> existingOnCard = await GetChecklistsOnCardAsync(cardId, cancellationToken);
+                Checklist existing = existingOnCard.FirstOrDefault(x => x.Name == existingChecklist.Name);
                 if (existing != null)
                 {
                     return existing;
@@ -140,7 +140,7 @@ namespace TrelloDotNet
         /// <returns>The Checklist</returns>
         public async Task<Checklist> UpdateChecklistAsync(string checklistId, string newName = null, NamedPosition? namedPosition = null, CancellationToken cancellationToken = default)
         {
-            var parameters = new List<QueryParameter>();
+            List<QueryParameter> parameters = new List<QueryParameter>();
             if (!string.IsNullOrWhiteSpace(newName))
             {
                 parameters.Add(new QueryParameter("name", newName));
@@ -174,7 +174,7 @@ namespace TrelloDotNet
         /// <returns>The Updated Checklist Item</returns>
         public async Task<ChecklistItem> UpdateChecklistItemAsync(string cardId, ChecklistItem item, CancellationToken cancellationToken = default)
         {
-            var parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(item);
+            QueryParameter[] parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(item);
             _queryParametersBuilder.AdjustForNamedPosition(parameters, item.NamedPosition);
             return await _apiRequestController.Put<ChecklistItem>($"{UrlPaths.Cards}/{cardId}/checkItem/{item.Id}", cancellationToken, parameters);
         }

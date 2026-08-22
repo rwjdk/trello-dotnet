@@ -1,4 +1,5 @@
 ﻿using TrelloDotNet.Model;
+using TrelloDotNet.Model.Actions;
 using TrelloDotNet.Model.Options.AddCardOptions;
 using TrelloDotNet.Model.Options.GetActionsOptions;
 using TrelloDotNet.Model.Webhook;
@@ -14,11 +15,11 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task GetActionsOfBoard()
     {
-        var nameBefore = _board.Name;
+        string nameBefore = _board.Name;
         string newName = _board.Name + "GetActionsOfBoard";
         _board.Name = newName;
         await TrelloClient.UpdateBoardAsync(_board);
-        var actions = await TrelloClient.GetActionsOfBoardAsync(_boardId, new GetActionsOptions
+        List<TrelloAction> actions = await TrelloClient.GetActionsOfBoardAsync(_boardId, new GetActionsOptions
         {
             Filter = [WebhookActionTypes.UpdateBoard]
         });
@@ -28,11 +29,11 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
     [Fact]
     public async Task GetActionsForOrganizations()
     {
-        var nameBefore = _organization.DisplayName;
+        string nameBefore = _organization.DisplayName;
         string newName = _organization.DisplayName + "GetActionsForOrganizations";
         _organization.DisplayName = newName;
         await TrelloClient.UpdateOrganizationAsync(_organization);
-        var actions = await TrelloClient.GetActionsForOrganizationsAsync(_organization.Id, new GetActionsOptions
+        List<TrelloAction> actions = await TrelloClient.GetActionsForOrganizationsAsync(_organization.Id, new GetActionsOptions
         {
             Filter = [WebhookActionTypes.UpdateOrganization]
         });
@@ -49,7 +50,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         await TrelloClient.UpdateCardAsync(card.Id, [
             CardUpdate.Name(newName),
         ]);
-        var actions = await TrelloClient.GetActionsOnCardAsync(card.Id, new GetActionsOptions
+        List<TrelloAction> actions = await TrelloClient.GetActionsOnCardAsync(card.Id, new GetActionsOptions
         {
             Filter = [WebhookActionTypes.UpdateCard]
         });
@@ -64,7 +65,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         Card card = await TrelloClient.AddCardAsync(new AddCardOptions(list.Id, testName));
         const string newName = testName + "X";
         await TrelloClient.UpdateCardAsync(card.Id, [CardUpdate.Name(newName)]);
-        var actions = await TrelloClient.GetActionsForListAsync(list.Id, new GetActionsOptions
+        List<TrelloAction> actions = await TrelloClient.GetActionsForListAsync(list.Id, new GetActionsOptions
         {
             Filter = [WebhookActionTypes.UpdateCard]
         });
@@ -80,7 +81,7 @@ public class ActionTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixt
         const string newName = testName + "X";
         await TrelloClient.UpdateCardAsync(card.Id, [CardUpdate.Name(newName)]);
         Member member = await TrelloClient.GetTokenMemberAsync();
-        var actions = await TrelloClient.GetActionsForMemberAsync(member.Id, new GetActionsOptions
+        List<TrelloAction> actions = await TrelloClient.GetActionsForMemberAsync(member.Id, new GetActionsOptions
         {
             Filter = [WebhookActionTypes.UpdateCard]
         });

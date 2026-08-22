@@ -11,28 +11,28 @@ namespace TrelloDotNet.Control
     {
         internal QueryParameter[] GetViaQueryParameterAttributes<T>(T instance)
         {
-            var type = instance.GetType();
-            var propertyInfos = type.GetProperties();
+            Type type = instance.GetType();
+            PropertyInfo[] propertyInfos = type.GetProperties();
             List<QueryParameter> parameters = new List<QueryParameter>();
             foreach (PropertyInfo updateableProperty in propertyInfos)
             {
-                var updateableAttributes = updateableProperty.GetCustomAttributes(typeof(QueryParameterAttribute), true);
+                object[] updateableAttributes = updateableProperty.GetCustomAttributes(typeof(QueryParameterAttribute), true);
                 if (!updateableAttributes.Any())
                 {
                     continue;
                 }
 
-                var jsonPropertyNameAttributes = updateableProperty.GetCustomAttributes(typeof(JsonPropertyNameAttribute), true);
+                object[] jsonPropertyNameAttributes = updateableProperty.GetCustomAttributes(typeof(JsonPropertyNameAttribute), true);
                 if (!jsonPropertyNameAttributes.Any())
                 {
                     continue;
                 }
 
-                var jsonPropertyName = (JsonPropertyNameAttribute)jsonPropertyNameAttributes.First();
-                var updateableAttribute = (QueryParameterAttribute)updateableAttributes.First();
-                var updateablePropertyType = updateableProperty.PropertyType;
+                JsonPropertyNameAttribute jsonPropertyName = (JsonPropertyNameAttribute)jsonPropertyNameAttributes.First();
+                QueryParameterAttribute updateableAttribute = (QueryParameterAttribute)updateableAttributes.First();
+                Type updateablePropertyType = updateableProperty.PropertyType;
 
-                var rawValue = updateableProperty.GetValue(instance);
+                object rawValue = updateableProperty.GetValue(instance);
                 if (rawValue == null && !updateableAttribute.IncludeIfNull)
                 {
                     continue;
@@ -60,7 +60,7 @@ namespace TrelloDotNet.Control
                 }
                 else if (updateablePropertyType == typeof(List<string>))
                 {
-                    var list = (List<string>)rawValue;
+                    List<string> list = (List<string>)rawValue;
                     parameters.Add(list == null ? new QueryParameter(jsonPropertyName.Name, string.Empty) : new QueryParameter(jsonPropertyName.Name, list));
                 }
                 else if (updateablePropertyType.BaseType == typeof(Enum))

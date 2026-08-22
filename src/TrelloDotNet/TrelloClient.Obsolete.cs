@@ -25,7 +25,7 @@ namespace TrelloDotNet
         {
             QueryParameter[] parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(card);
             _queryParametersBuilder.AdjustForNamedPosition(parameters, card.NamedPosition);
-            var result = await _apiRequestController.Post<Card>($"{UrlPaths.Cards}", cancellationToken, parameters);
+            Card result = await _apiRequestController.Post<Card>($"{UrlPaths.Cards}", cancellationToken, parameters);
             if (card.Cover != null)
             {
                 return await AddCoverToCardAsync(result.Id, card.Cover, cancellationToken);
@@ -47,7 +47,7 @@ namespace TrelloDotNet
             QueryParameter[] parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(card);
 
             _queryParametersBuilder.AdjustForNamedPosition(parameters, card.NamedPosition);
-            var result = await _apiRequestController.Post<Card>($"{UrlPaths.Cards}", cancellationToken, parameters);
+            Card result = await _apiRequestController.Post<Card>($"{UrlPaths.Cards}", cancellationToken, parameters);
             if (card.Cover != null)
             {
                 return await AddCoverToCardAsync(result.Id, card.Cover, cancellationToken);
@@ -95,7 +95,7 @@ namespace TrelloDotNet
                 }
             }
 
-            var cards = await _apiRequestController.Get<List<Card>>($"{GetUrlBuilder.GetCardsOnBoard(boardId)}/{filter.GetJsonPropertyName()}", cancellationToken, options.GetParameters(true));
+            List<Card> cards = await _apiRequestController.Get<List<Card>>($"{GetUrlBuilder.GetCardsOnBoard(boardId)}/{filter.GetJsonPropertyName()}", cancellationToken, options.GetParameters(true));
             if (options.IncludeList)
             {
                 List<List> lists;
@@ -233,10 +233,10 @@ namespace TrelloDotNet
         [Obsolete("Use UpdateCard with 'List<CardUpdate> valuesToUpdate' as it have much better performance due to delta changes and avoid lost changes between get and update [Will be removed in v2.0 of this nuGet Package (More info: https://github.com/rwjdk/TrelloDotNet/issues/51)]")]
         public async Task<Card> UpdateCardAsync(Card cardWithChanges, CancellationToken cancellationToken = default)
         {
-            var parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(cardWithChanges).ToList();
+            List<QueryParameter> parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(cardWithChanges).ToList();
             CardCover cardCover = cardWithChanges.Cover;
             _queryParametersBuilder.AdjustForNamedPosition(parameters, cardWithChanges.NamedPosition);
-            var payload = GeneratePayloadForCoverUpdate(cardCover, parameters);
+            string payload = GeneratePayloadForCoverUpdate(cardCover, parameters);
             return await _apiRequestController.PutWithJsonPayload<Card>($"{UrlPaths.Cards}/{cardWithChanges.Id}", cancellationToken, payload, parameters.ToArray());
         }
 
@@ -255,7 +255,7 @@ namespace TrelloDotNet
                 //Special Cover Card
                 parameters.Remove(coverParameter);
                 CardCover cover = JsonSerializer.Deserialize<CardCover>(coverParameter.GetRawStringValue());
-                var payload = GeneratePayloadForCoverUpdate(cover, parameters);
+                string payload = GeneratePayloadForCoverUpdate(cover, parameters);
                 return await _apiRequestController.PutWithJsonPayload<Card>($"{UrlPaths.Cards}/{cardId}", cancellationToken, payload, parameters.ToArray());
             }
 

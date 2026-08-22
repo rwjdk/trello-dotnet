@@ -24,7 +24,7 @@ namespace TrelloDotNet
         /// <returns>The New Board</returns>
         public async Task<Board> AddBoardAsync(Board board, AddBoardOptions options = null, CancellationToken cancellationToken = default)
         {
-            var parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(board).ToList();
+            List<QueryParameter> parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(board).ToList();
             if (options != null)
             {
                 parameters.AddRange(_queryParametersBuilder.GetViaQueryParameterAttributes(options));
@@ -167,7 +167,7 @@ namespace TrelloDotNet
         /// <returns>The Active Boards there is access to</returns>
         public async Task<List<Board>> GetBoardsCurrentTokenCanAccessAsync(CancellationToken cancellationToken = default)
         {
-            var tokenMember = await GetTokenMemberAsync(cancellationToken);
+            Member tokenMember = await GetTokenMemberAsync(cancellationToken);
             return await GetBoardsForMemberAsync(tokenMember.Id, cancellationToken);
         }
 
@@ -179,7 +179,7 @@ namespace TrelloDotNet
         /// <returns>The Active Boards there is access to</returns>
         public async Task<List<Board>> GetBoardsCurrentTokenCanAccessAsync(GetBoardOptions options, CancellationToken cancellationToken = default)
         {
-            var tokenMember = await GetTokenMemberAsync(cancellationToken);
+            Member tokenMember = await GetTokenMemberAsync(cancellationToken);
             return await GetBoardsForMemberAsync(tokenMember.Id, options, cancellationToken);
         }
 

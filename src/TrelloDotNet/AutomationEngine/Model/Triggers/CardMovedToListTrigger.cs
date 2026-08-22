@@ -55,13 +55,13 @@ namespace TrelloDotNet.AutomationEngine.Model.Triggers
         public async Task<bool> IsTriggerMetAsync(WebhookAction webhookAction)
         {
             await Task.CompletedTask;
-            var partToCheck = TreatListNameAsId ? webhookAction.Data?.ListAfter?.Name : webhookAction.Data?.ListAfter?.Id;
+            string partToCheck = TreatListNameAsId ? webhookAction.Data?.ListAfter?.Name : webhookAction.Data?.ListAfter?.Id;
             if (partToCheck == null)
             {
                 return false;
             }
 
-            var correctType = webhookAction.Type == WebhookActionTypes.UpdateCard;
+            bool correctType = webhookAction.Type == WebhookActionTypes.UpdateCard;
 
             if (!TreatListNameAsId)
             {

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using TrelloDotNet.AutomationEngine.Interface;
+using TrelloDotNet.Model;
 using TrelloDotNet.Model.Webhook;
 
 namespace TrelloDotNet.AutomationEngine.Model.Conditions
@@ -47,7 +48,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
             if (webhookAction.Data?.List != null)
             {
                 //List can be checked via Webhook
-                var listPartToCheck = TreatListNameAsId ? webhookAction.Data?.List?.Name : webhookAction.Data?.List?.Id;
+                string listPartToCheck = TreatListNameAsId ? webhookAction.Data?.List?.Name : webhookAction.Data?.List?.Id;
                 switch (Constraint)
                 {
                     case ListConditionConstraint.AnyOfTheseLists:
@@ -61,11 +62,11 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
 
             if (webhookAction.Data?.Card != null)
             {
-                var card = await webhookAction.TrelloClient.GetCardAsync(webhookAction.Data.Card.Id);
+                Card card = await webhookAction.TrelloClient.GetCardAsync(webhookAction.Data.Card.Id);
                 if (TreatListNameAsId)
                 {
                     //Get list of card to check name
-                    var list = await webhookAction.TrelloClient.GetListAsync(card.ListId);
+                    List list = await webhookAction.TrelloClient.GetListAsync(card.ListId);
                     switch (Constraint)
                     {
                         case ListConditionConstraint.AnyOfTheseLists:

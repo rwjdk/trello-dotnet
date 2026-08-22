@@ -29,7 +29,7 @@ namespace TrelloDotNet
             switch (customField.Type)
             {
                 case CustomFieldType.Checkbox:
-                    var valueAsString = newValue ? "true" : "false";
+                    string valueAsString = newValue ? "true" : "false";
                     payload = $"{{\"value\": {{ \"checked\": \"{HttpUtility.JavaScriptStringEncode(valueAsString)}\" }}}}";
                     break;
                 case CustomFieldType.Date:
@@ -89,7 +89,7 @@ namespace TrelloDotNet
             switch (customField.Type)
             {
                 case CustomFieldType.Number:
-                    var valueAsString = newValue.ToString(CultureInfo.InvariantCulture);
+                    string valueAsString = newValue.ToString(CultureInfo.InvariantCulture);
                     payload = $"{{\"value\": {{ \"number\": \"{HttpUtility.JavaScriptStringEncode(valueAsString)}\" }}}}";
                     break;
                 case CustomFieldType.Checkbox:
@@ -119,7 +119,7 @@ namespace TrelloDotNet
             switch (customField.Type)
             {
                 case CustomFieldType.Number:
-                    var valueAsString = newValue.ToString(CultureInfo.InvariantCulture);
+                    string valueAsString = newValue.ToString(CultureInfo.InvariantCulture);
                     payload = $"{{\"value\": {{ \"number\": \"{HttpUtility.JavaScriptStringEncode(valueAsString)}\" }}}}";
                     break;
                 case CustomFieldType.Checkbox:

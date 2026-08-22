@@ -48,8 +48,8 @@ namespace TrelloDotNet
         /// <param name="cancellationToken">Cancellation Token</param>
         public async Task DeleteWebhooksByCallbackUrlAsync(string callbackUrl, CancellationToken cancellationToken = default)
         {
-            var currentWebhooks = await GetWebhooksForCurrentTokenAsync(cancellationToken);
-            foreach (var webhook in currentWebhooks.Where(x => x.CallbackUrl == callbackUrl))
+            List<Webhook> currentWebhooks = await GetWebhooksForCurrentTokenAsync(cancellationToken);
+            foreach (Webhook webhook in currentWebhooks.Where(x => x.CallbackUrl == callbackUrl))
             {
                 await DeleteWebhookAsync(webhook.Id, cancellationToken);
             }
@@ -62,8 +62,8 @@ namespace TrelloDotNet
         /// <param name="cancellationToken">Cancellation Token</param>
         public async Task DeleteWebhooksByTargetModelIdAsync(string targetIdModel, CancellationToken cancellationToken = default)
         {
-            var currentWebhooks = await GetWebhooksForCurrentTokenAsync(cancellationToken);
-            foreach (var webhook in currentWebhooks.Where(x => x.IdOfTypeYouWishToMonitor == targetIdModel))
+            List<Webhook> currentWebhooks = await GetWebhooksForCurrentTokenAsync(cancellationToken);
+            foreach (Webhook webhook in currentWebhooks.Where(x => x.IdOfTypeYouWishToMonitor == targetIdModel))
             {
                 await DeleteWebhookAsync(webhook.Id, cancellationToken);
             }
@@ -97,8 +97,8 @@ namespace TrelloDotNet
         /// <param name="cancellationToken">Cancellation Token</param>
         public async Task UpdateWebhookByCallbackUrlAsync(string oldUrl, string newUrl, CancellationToken cancellationToken = default)
         {
-            var currentWebhooks = await GetWebhooksForCurrentTokenAsync(cancellationToken);
-            foreach (var webhook in currentWebhooks.Where(x => x.CallbackUrl == oldUrl))
+            List<Webhook> currentWebhooks = await GetWebhooksForCurrentTokenAsync(cancellationToken);
+            foreach (Webhook webhook in currentWebhooks.Where(x => x.CallbackUrl == oldUrl))
             {
                 webhook.CallbackUrl = newUrl;
                 await UpdateWebhookAsync(webhook, cancellationToken);

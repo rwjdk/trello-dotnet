@@ -44,7 +44,7 @@ namespace TrelloDotNet.AutomationEngine
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = new ProcessingResult();
+            ProcessingResult result = new ProcessingResult();
 
             if ((!string.IsNullOrEmpty(request.Signature) || !string.IsNullOrEmpty(request.WebhookUrl))
                 && !WebhookSignatureValidator.ValidateSignature(request.JsonFromWebhook, request.Signature, request.WebhookUrl, _trelloClient.Options.Secret))
@@ -54,16 +54,16 @@ namespace TrelloDotNet.AutomationEngine
             }
 
             WebhookNotification data = _receiver.ConvertJsonToWebhookNotification(request.JsonFromWebhook);
-            var webhookAction = data.Action;
+            WebhookAction webhookAction = data.Action;
 
-            foreach (var automation in _automations)
+            foreach (Automation automation in _automations)
             {
                 IAutomationTrigger triggerBeingChecked = null;
                 try
                 {
-                    var triggerMet = false;
+                    bool triggerMet = false;
                     cancellationToken.ThrowIfCancellationRequested();
-                    foreach (var trigger in automation.Triggers)
+                    foreach (IAutomationTrigger trigger in automation.Triggers)
                     {
                         triggerBeingChecked = trigger;
                         triggerMet = await trigger.IsTriggerMetAsync(webhookAction);
@@ -90,10 +90,10 @@ namespace TrelloDotNet.AutomationEngine
                     throw new AutomationException($"Error checking Trigger in automation '{automation.Name}'{AddErrorContext(data)}", e);
                 }
 
-                var conditionsMet = true;
+                bool conditionsMet = true;
                 if (automation.Conditions != null)
                 {
-                    foreach (var x in automation.Conditions)
+                    foreach (IAutomationCondition x in automation.Conditions)
                     {
                         try
                         {
@@ -115,7 +115,7 @@ namespace TrelloDotNet.AutomationEngine
                 {
                     result.AutomationsProcessed++;
                     result.AddToLog($"Automation '{automation.Name}' trigger and condition was met - Executing {automation.Actions.Count} Action");
-                    foreach (var actionAction in automation.Actions.Where(x => x != null))
+                    foreach (IAutomationAction actionAction in automation.Actions.Where(x => x != null))
                     {
                         try
                         {

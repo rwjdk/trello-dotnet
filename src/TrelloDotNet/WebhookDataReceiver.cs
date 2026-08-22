@@ -41,7 +41,7 @@ namespace TrelloDotNet
                 return; // Invalid signature
             }
 
-            var webhookNotification = JsonSerializer.Deserialize<WebhookNotification>(json);
+            WebhookNotification webhookNotification = JsonSerializer.Deserialize<WebhookNotification>(json);
             BasicEvents.FireEvent(webhookNotification.Action);
             await SmartEvents.FireEvent(webhookNotification.Action, _trelloClient);
         }
@@ -53,7 +53,7 @@ namespace TrelloDotNet
         /// <returns>C# Class representing the JSON</returns>
         public WebhookNotification ConvertJsonToWebhookNotification(string json)
         {
-            var result = JsonSerializer.Deserialize<WebhookNotification>(json);
+            WebhookNotification result = JsonSerializer.Deserialize<WebhookNotification>(json);
             SetTrelloClientAndParents(result.Action);
             return result;
         }
@@ -105,7 +105,7 @@ namespace TrelloDotNet
         /// <returns>C# Class representing the JSON</returns>
         public WebhookNotificationBoard ConvertJsonToWebhookNotificationBoard(string json)
         {
-            var result = JsonSerializer.Deserialize<WebhookNotificationBoard>(json);
+            WebhookNotificationBoard result = JsonSerializer.Deserialize<WebhookNotificationBoard>(json);
             SetTrelloClientAndParents(result.Action);
             return result;
         }
@@ -117,7 +117,7 @@ namespace TrelloDotNet
         /// <returns>C# Class representing the JSON</returns>
         public WebhookNotificationCard ConvertJsonToWebhookNotificationCard(string json)
         {
-            var result = JsonSerializer.Deserialize<WebhookNotificationCard>(json);
+            WebhookNotificationCard result = JsonSerializer.Deserialize<WebhookNotificationCard>(json);
             SetTrelloClientAndParents(result.Action);
             return result;
         }
@@ -129,7 +129,7 @@ namespace TrelloDotNet
         /// <returns>C# Class representing the JSON</returns>
         public WebhookNotificationList ConvertJsonToWebhookNotificationList(string json)
         {
-            var result = JsonSerializer.Deserialize<WebhookNotificationList>(json);
+            WebhookNotificationList result = JsonSerializer.Deserialize<WebhookNotificationList>(json);
             SetTrelloClientAndParents(result.Action);
             return result;
         }
@@ -141,7 +141,7 @@ namespace TrelloDotNet
         /// <returns>C# Class representing the JSON</returns>
         public WebhookNotificationMember ConvertJsonToWebhookNotificationMember(string json)
         {
-            var result = JsonSerializer.Deserialize<WebhookNotificationMember>(json);
+            WebhookNotificationMember result = JsonSerializer.Deserialize<WebhookNotificationMember>(json);
             SetTrelloClientAndParents(result.Action);
             return result;
         }

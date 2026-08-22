@@ -22,7 +22,7 @@ namespace TrelloDotNet
         /// <returns>The Created list</returns>
         public async Task<List> AddListAsync(List list, CancellationToken cancellationToken = default)
         {
-            var parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(list);
+            QueryParameter[] parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(list);
             _queryParametersBuilder.AdjustForNamedPosition(parameters, list.NamedPosition);
             return await _apiRequestController.Post<List>($"{UrlPaths.Lists}", cancellationToken, parameters);
         }
@@ -68,7 +68,7 @@ namespace TrelloDotNet
         /// <returns>The Updated List</returns>
         public async Task<List> UpdateListAsync(List listWithChanges, CancellationToken cancellationToken = default)
         {
-            var parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(listWithChanges);
+            QueryParameter[] parameters = _queryParametersBuilder.GetViaQueryParameterAttributes(listWithChanges);
             _queryParametersBuilder.AdjustForNamedPosition(parameters, listWithChanges.NamedPosition);
             return await _apiRequestController.Put<List>($"{UrlPaths.Lists}/{listWithChanges.Id}", cancellationToken, parameters);
         }

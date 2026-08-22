@@ -52,12 +52,12 @@ namespace TrelloDotNet
         /// <returns>List of Comments</returns>
         public async Task<List<TrelloAction>> GetAllCommentsOnCardAsync(string cardId, CancellationToken cancellationToken = default)
         {
-            var result = new List<TrelloAction>();
+            List<TrelloAction> result = new List<TrelloAction>();
             int page = 0;
             bool moreComments = true;
             do
             {
-                var comments = await GetPagedCommentsOnCardAsync(cardId, page, cancellationToken);
+                List<TrelloAction> comments = await GetPagedCommentsOnCardAsync(cardId, page, cancellationToken);
                 page++;
                 if (comments.Any())
                 {

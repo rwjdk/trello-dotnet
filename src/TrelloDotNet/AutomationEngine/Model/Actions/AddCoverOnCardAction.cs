@@ -41,7 +41,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform AddCoverOnCardAction as WebhookAction did not involve a Card");
             }
 
-            var trelloClient = webhookAction.TrelloClient;
+            TrelloClient trelloClient = webhookAction.TrelloClient;
             await trelloClient.UpdateCardAsync(webhookAction.Data.Card.Id, new List<CardUpdate>
             {
                 CardUpdate.Cover(CardCoverToAdd)

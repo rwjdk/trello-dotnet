@@ -48,7 +48,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform AddChecklistToCardAction as WebhookAction did not involve a Card");
             }
 
-            var cardId = webhookAction.Data.Card.Id;
+            string cardId = webhookAction.Data.Card.Id;
 
             if (ChecklistToAdd.Items == null)
             {
@@ -56,7 +56,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
             }
 
             string checklistToAddAsJson = JsonSerializer.Serialize(ChecklistToAdd);
-            var clone = JsonSerializer.Deserialize<Checklist>(checklistToAddAsJson);
+            Checklist clone = JsonSerializer.Deserialize<Checklist>(checklistToAddAsJson);
             if (clone.Name != null)
             {
                 clone.Name = clone.Name.Replace("**ID**", webhookAction.Data.Card.Id).Replace("**NAME**", webhookAction.Data.Card.Name);
@@ -67,8 +67,8 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 item.Name = item.Name.Replace("**ID**", webhookAction.Data.Card.Id).Replace("**NAME**", webhookAction.Data.Card.Name);
             }
 
-            var existingOnCard = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(cardId);
-            var existing = existingOnCard.FirstOrDefault(x => x.Name == clone.Name);
+            List<Checklist> existingOnCard = await webhookAction.TrelloClient.GetChecklistsOnCardAsync(cardId);
+            Checklist existing = existingOnCard.FirstOrDefault(x => x.Name == clone.Name);
             if (existing == null)
             {
                 await webhookAction.TrelloClient.AddChecklistAsync(cardId, clone);
@@ -79,11 +79,11 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
             {
                 if (AddCheckItemsToExistingChecklist)
                 {
-                    var checklistItemsMissing = clone.Items.Where(checklistItem => existing.Items.All(x => x.Name != checklistItem.Name)).ToList();
+                    List<ChecklistItem> checklistItemsMissing = clone.Items.Where(checklistItem => existing.Items.All(x => x.Name != checklistItem.Name)).ToList();
                     if (checklistItemsMissing.Any())
                     {
                         decimal maxPosition = existing.Items.Any() ? existing.Items.Max(x => x.Position) : 1;
-                        foreach (var checklistItem in checklistItemsMissing)
+                        foreach (ChecklistItem checklistItem in checklistItemsMissing)
                         {
                             maxPosition += 1;
                             checklistItem.Position = maxPosition;

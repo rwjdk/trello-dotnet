@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TrelloDotNet.AutomationEngine.Interface;
 using TrelloDotNet.Model;
@@ -47,11 +48,11 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform RemoveStickerFromCardAction as WebhookAction did not involve a Card");
             }
 
-            var trelloClient = webhookAction.TrelloClient;
-            var cardId = webhookAction.Data.Card.Id;
+            TrelloClient trelloClient = webhookAction.TrelloClient;
+            string cardId = webhookAction.Data.Card.Id;
             //Check if same image id sticker already exist
-            var stickers = await trelloClient.GetStickersOnCardAsync(cardId);
-            var existingSticker = stickers.FirstOrDefault(x => x.ImageId == StickerImageIdToRemove);
+            List<Sticker> stickers = await trelloClient.GetStickersOnCardAsync(cardId);
+            Sticker existingSticker = stickers.FirstOrDefault(x => x.ImageId == StickerImageIdToRemove);
             if (existingSticker == null)
             {
                 processingResult.AddToLog($"SKIPPED: Sticker '{StickerImageIdToRemove}' is not on card '{webhookAction.Data.Card.Name}'");

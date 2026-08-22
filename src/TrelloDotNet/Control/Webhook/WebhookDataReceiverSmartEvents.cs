@@ -70,7 +70,7 @@ namespace TrelloDotNet.Control.Webhook
                     if (OnChecklistComplete != null && action.Data?.CheckItem != null && action.Data.CheckItem.State == ChecklistItemState.Complete)
                     {
                         //Check if all items of checklist is complete using the API
-                        var checklistAsync = await trelloClient.GetChecklistAsync(action.Data.Checklist.Id);
+                        Checklist checklistAsync = await trelloClient.GetChecklistAsync(action.Data.Checklist.Id);
                         if (checklistAsync.Items.TrueForAll(x => x.State == ChecklistItemState.Complete))
                         {
                             OnChecklistComplete?.Invoke(new WebhookSmartEventChecklistComplete(action));

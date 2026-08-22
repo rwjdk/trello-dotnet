@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using TrelloDotNet.AutomationEngine.Interface;
+using TrelloDotNet.Model;
 using TrelloDotNet.Model.Webhook;
 
 namespace TrelloDotNet.AutomationEngine.Model.Actions
@@ -43,15 +44,15 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform RemoveMembersFromCardAction as WebhookAction did not involve a Card");
             }
 
-            var memberIdsToRemove = MemberIds;
+            string[] memberIdsToRemove = MemberIds;
 
             if (TreatMemberNameAsId)
             {
-                var allMembers = await webhookAction.TrelloClient.GetMembersOfBoardAsync(webhookAction.Data.Board.Id);
-                var idsFromNames = new List<string>();
-                foreach (var memberName in MemberIds) //Remember; here the 'Id's' are actually Names so we need to find the id's needed for removal
+                List<Member> allMembers = await webhookAction.TrelloClient.GetMembersOfBoardAsync(webhookAction.Data.Board.Id);
+                List<string> idsFromNames = new List<string>();
+                foreach (string memberName in MemberIds) //Remember; here the 'Id's' are actually Names so we need to find the id's needed for removal
                 {
-                    var member = allMembers.FirstOrDefault(x => x.FullName == memberName);
+                    Member member = allMembers.FirstOrDefault(x => x.FullName == memberName);
                     if (member != null)
                     {
                         idsFromNames.Add(member.Id);

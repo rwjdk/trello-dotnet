@@ -44,17 +44,17 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform AddLabelsToCardAction as WebhookAction did not involve a Card");
             }
 
-            var trelloClient = webhookAction.TrelloClient;
+            TrelloClient trelloClient = webhookAction.TrelloClient;
 
-            var labelIdsToRemove = LabelIds;
+            string[] labelIdsToRemove = LabelIds;
 
             if (TreatLabelNameAsId)
             {
-                var allLabels = await webhookAction.TrelloClient.GetLabelsOfBoardAsync(webhookAction.Data.Board.Id);
-                var idsFromNames = new List<string>();
-                foreach (var labelName in LabelIds) //Remember; here the 'Id's' are actually Names so we need to find the id's needed for removal
+                List<Label> allLabels = await webhookAction.TrelloClient.GetLabelsOfBoardAsync(webhookAction.Data.Board.Id);
+                List<string> idsFromNames = new List<string>();
+                foreach (string labelName in LabelIds) //Remember; here the 'Id's' are actually Names so we need to find the id's needed for removal
                 {
-                    var label = allLabels.FirstOrDefault(x => x.Name == labelName);
+                    Label label = allLabels.FirstOrDefault(x => x.Name == labelName);
                     if (label != null)
                     {
                         idsFromNames.Add(label.Id);
@@ -64,9 +64,9 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 labelIdsToRemove = idsFromNames.ToArray();
             }
 
-            var card = await webhookAction.Data.Card.GetAsync();
+            Card card = await webhookAction.Data.Card.GetAsync();
             bool updateNeeded = false;
-            foreach (var labelId in labelIdsToRemove)
+            foreach (string labelId in labelIdsToRemove)
             {
                 if (card.LabelIds.Contains(labelId))
                 {

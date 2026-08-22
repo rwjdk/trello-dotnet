@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using TrelloDotNet.AutomationEngine.Interface;
+using TrelloDotNet.Model;
 using TrelloDotNet.Model.Webhook;
 
 namespace TrelloDotNet.AutomationEngine.Model.Actions
@@ -43,15 +44,15 @@ namespace TrelloDotNet.AutomationEngine.Model.Actions
                 throw new AutomationException("Could not perform RemoveLabelsFromCardAction as WebhookAction did not involve a Card");
             }
 
-            var labelIdsToRemove = LabelsIds;
+            string[] labelIdsToRemove = LabelsIds;
 
             if (TreatLabelNameAsId)
             {
-                var allLabels = await webhookAction.TrelloClient.GetLabelsOfBoardAsync(webhookAction.Data.Board.Id);
-                var idsFromNames = new List<string>();
-                foreach (var labelName in LabelsIds) //Remember; here the 'Id's' are actually Names so we need to find the id's needed for removal
+                List<Label> allLabels = await webhookAction.TrelloClient.GetLabelsOfBoardAsync(webhookAction.Data.Board.Id);
+                List<string> idsFromNames = new List<string>();
+                foreach (string labelName in LabelsIds) //Remember; here the 'Id's' are actually Names so we need to find the id's needed for removal
                 {
-                    var label = allLabels.FirstOrDefault(x => x.Name == labelName);
+                    Label label = allLabels.FirstOrDefault(x => x.Name == labelName);
                     if (label != null)
                     {
                         idsFromNames.Add(label.Id);

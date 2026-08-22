@@ -39,7 +39,7 @@ namespace TrelloDotNet.AutomationEngine.Model.Conditions
                 throw new AutomationException("Could not perform CardCoverCondition.IsConditionMetAsync as WebhookAction did not involve a Card");
             }
 
-            var card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
+            Card card = await webhookAction.Data.Card.GetAsync(new GetCardOptions
             {
                 CardFields = new CardFields("cover")
             });

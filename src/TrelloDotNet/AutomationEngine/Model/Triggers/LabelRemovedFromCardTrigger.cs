@@ -48,8 +48,8 @@ namespace TrelloDotNet.AutomationEngine.Model.Triggers
         public async Task<bool> IsTriggerMetAsync(WebhookAction webhookAction)
         {
             await Task.CompletedTask;
-            var correctType = webhookAction.Type == WebhookActionTypes.RemoveLabelFromCard;
-            var partToMatch = TreatLabelNameAsId ? webhookAction.Data?.Label?.Name : webhookAction.Data?.Label?.Id;
+            bool correctType = webhookAction.Type == WebhookActionTypes.RemoveLabelFromCard;
+            string partToMatch = TreatLabelNameAsId ? webhookAction.Data?.Label?.Name : webhookAction.Data?.Label?.Id;
             switch (Constraint)
             {
                 case LabelRemovedFromCardTriggerConstraint.AnyOfTheseLabelsAreRemoved:
