@@ -155,4 +155,15 @@ public class RawCallTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFix
         string? rawUpdate = await TrelloClient.PutAsync($"{UrlPaths.Cards}/{card.Id}", payload);
         Assert.NotNull(rawUpdate);
     }
+
+    [Fact]
+    public async Task RawDelete()
+    {
+        (List list, Card card) = await AddDummyCardAndList(_board.Id, "RawDelete");
+
+        await TrelloClient.DeleteAsync($"cards/{card.Id}", cancellationToken: TestCancellationToken);
+
+        List<Card>? cardsOnList = await TrelloClient.GetCardsInListAsync(list.Id, cancellationToken: TestCancellationToken);
+        Assert.DoesNotContain(cardsOnList, x => x.Id == card.Id);
+    }
 }

@@ -6,6 +6,7 @@ namespace TrelloDotNet.Tests.IntegrationTests;
 
 public class InboxTests : TestBase
 {
+    /*
     [Fact]
     public async Task GetInbox()
     {
@@ -17,7 +18,7 @@ public class InboxTests : TestBase
             Assert.NotNull(memberInbox.OrganizationId);
         }
     }
-
+    
     [Fact]
     public async Task AddCardToInbox()
     {
@@ -44,7 +45,7 @@ public class InboxTests : TestBase
             }
         }
     }
-
+    
     [Fact]
     public async Task GetCardsToInbox()
     {
@@ -60,4 +61,5 @@ public class InboxTests : TestBase
             Assert.NotNull(cards);
         }
     }
+    */    
 }

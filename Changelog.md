@@ -1,11 +1,18 @@
 ﻿# Changelog
 
+## 2.8.2 (22nd of August 2026)
+#### TrelloClient
+- Added `GetAvailableEmojiAsync` to retrieve the Emoji available in Trello
+- Special Note: Removed Trello Inbox Tests and make Inbox Methods as Obsolete as it seems like Atlassian have stopped supporting API access to the Inbox (or it is a bug) 
+ 
+---
+
 ## 2.8.1 (17th of August 2026)
 #### TrelloClient
 - Fixed `DownloadAttachmentAsync` sending Trello credentials to untrusted attachment URLs
 - Added more Tests
 
-<hr>
+---
 
 ## 2.8.0 (15th of April 2026)
 #### TrelloClient

@@ -17,6 +17,11 @@ namespace TrelloDotNet
         public const string Cards = "cards";
 
         /// <summary>
+        /// emoji
+        /// </summary>
+        public const string Emoji = "emoji";
+
+        /// <summary>
         /// lists
         /// </summary>
         public const string Lists = "lists";

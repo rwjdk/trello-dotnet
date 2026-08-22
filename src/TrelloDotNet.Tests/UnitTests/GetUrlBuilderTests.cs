@@ -1,4 +1,8 @@
 using TrelloDotNet.Control;
+using TrelloDotNet.Model.Options;
+using TrelloDotNet.Model.Options.GetBoardOptions;
+using TrelloDotNet.Model.Options.GetCardOptions;
+using TrelloDotNet.Model.Options.GetListOptions;
 
 namespace TrelloDotNet.Tests.UnitTests;
 
@@ -55,6 +59,59 @@ public class GetUrlBuilderTests
         Assert.Equal("checklists/checklist1", GetUrlBuilder.GetChecklist("checklist1"));
         Assert.Equal("boards/board1/checklists", GetUrlBuilder.GetChecklistsOnBoard("board1"));
         Assert.Equal("cards/card1/checklists", GetUrlBuilder.GetChecklistsOnCard("card1"));
+    }
+
+    [Fact]
+    public void CommentReactionAndCustomFieldRoutesBuildExpectedPaths()
+    {
+        Assert.Equal("actions/commentAction1/reactions", GetUrlBuilder.GetCommentReactions("commentAction1"));
+        Assert.Equal("boards/board1/customFields", GetUrlBuilder.GetCustomFieldsOnBoard("board1"));
+        Assert.Equal("cards/card1/customFieldItems", GetUrlBuilder.GetCustomFieldItemsForCard("card1"));
+    }
+
+    [Fact]
+    public void BoardRoutesIncludeGetOptions()
+    {
+        GetBoardOptions options = new GetBoardOptions
+        {
+            BoardFields = new BoardFields(BoardFieldsType.Name, BoardFieldsType.Url),
+            IncludeLists = GetBoardOptionsIncludeLists.Open
+        };
+
+        const string expectedOptions = "?fields=name%2curl&lists=open&organization=false&filter=all&cards=none&labels=none&pluginData=false";
+
+        Assert.Equal("boards/board1" + expectedOptions, GetUrlBuilder.GetBoard("board1", options));
+        Assert.Equal("members/member1/boards/" + expectedOptions, GetUrlBuilder.GetBoardsForMember("member1", options));
+        Assert.Equal("organizations/org1/boards" + expectedOptions, GetUrlBuilder.GetBoardsInOrganization("org1", options));
+    }
+
+    [Fact]
+    public void CardRoutesIncludeGetOptions()
+    {
+        GetCardOptions options = new GetCardOptions
+        {
+            CardFields = new CardFields(CardFieldsType.Name, CardFieldsType.ListId),
+            IncludeAttachments = GetCardOptionsIncludeAttachments.True
+        };
+
+        const string expectedOptions = "?fields=name%2cidList&members=false&board=false&list=false&checklists=none&pluginData=false&stickers=false&customFieldItems=false&membersVoted=false&attachments=true";
+
+        Assert.Equal("cards/card1" + expectedOptions, GetUrlBuilder.GetCard("card1", options));
+        Assert.Equal("boards/board1/cards/" + expectedOptions, GetUrlBuilder.GetCardsOnBoard("board1", options));
+        Assert.Equal("lists/list1/cards/" + expectedOptions, GetUrlBuilder.GetCardsInList("list1", options));
+        Assert.Equal("members/member1/cards/" + expectedOptions, GetUrlBuilder.GetCardsForMember("member1", options));
+    }
+
+    [Fact]
+    public void ListRoutesIncludeGetOptions()
+    {
+        GetListOptions options = new GetListOptions
+        {
+            ListFields = new ListFields(ListFieldsType.Name, ListFieldsType.Closed),
+            IncludeCards = GetListOptionsIncludeCards.OpenCards
+        };
+
+        Assert.Equal("lists/list1?fields=name%2cclosed&board=false&cards=open", GetUrlBuilder.GetList("list1", options));
     }
 
     [Fact]

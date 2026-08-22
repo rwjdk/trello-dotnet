@@ -181,6 +181,7 @@ namespace TrelloDotNet
         /// <param name="options">Options for the new inbox card, such as name, description, dates, checklists, attachments, and cover. <see cref="AddCardToInboxOptions"/></param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>The created <see cref="Card"/> object in the inbox list.</returns>
+        [Obsolete("In June 2026 Trello Stopped working with the Inbox over API. It is unknown if this is a bug or intentional choice, but added this warning for people to be aware")]
         public async Task<Card> AddCardToInboxAsync(AddCardToInboxOptions options, CancellationToken cancellationToken = default)
         {
             if (options == null)
@@ -802,6 +803,7 @@ namespace TrelloDotNet
         /// </summary>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>A list of <see cref="Card"/> objects in the inbox.</returns>
+        [Obsolete("In June 2026 Trello Stopped working with the Inbox over API. It is unknown if this is a bug or intentional choice, but added this warning for people to be aware")]
         public async Task<List<Card>> GetCardsInInboxAsync(CancellationToken cancellationToken = default)
         {
             TokenMemberInbox inbox = await GetTokenMemberInboxAsync(cancellationToken);
@@ -819,6 +821,7 @@ namespace TrelloDotNet
         /// <param name="options">Options specifying which fields and nested data to include. <see cref="GetInboxCardOptions"/></param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>A list of <see cref="Card"/> objects in the inbox.</returns>
+        [Obsolete("In June 2026 Trello Stopped working with the Inbox over API. It is unknown if this is a bug or intentional choice, but added this warning for people to be aware")]
         public async Task<List<Card>> GetCardsInInboxAsync(GetInboxCardOptions options, CancellationToken cancellationToken = default)
         {
             if (options == null)

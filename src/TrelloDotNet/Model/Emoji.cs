@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 
@@ -43,6 +44,62 @@ namespace TrelloDotNet.Model
         [JsonPropertyName(Constants.TrelloIds.CardFields.ShortName)]
         [JsonInclude]
         public string ShortName { get; set; }
+
+        /// <summary>
+        /// Alternative short names of the Emoji
+        /// </summary>
+        [JsonPropertyName("shortNames")]
+        [JsonInclude]
+        public List<string> ShortNames { get; set; }
+
+        /// <summary>
+        /// Primary text representation of the Emoji
+        /// </summary>
+        [JsonPropertyName("text")]
+        [JsonInclude]
+        public string Text { get; set; }
+
+        /// <summary>
+        /// Alternative text representations of the Emoji
+        /// </summary>
+        [JsonPropertyName("texts")]
+        [JsonInclude]
+        public List<string> Texts { get; set; }
+
+        /// <summary>
+        /// Category of the Emoji
+        /// </summary>
+        [JsonPropertyName("category")]
+        [JsonInclude]
+        public string Category { get; set; }
+
+        /// <summary>
+        /// Horizontal position of the Emoji in a sprite sheet
+        /// </summary>
+        [JsonPropertyName("sheetX")]
+        [JsonInclude]
+        public int SheetX { get; set; }
+
+        /// <summary>
+        /// Vertical position of the Emoji in a sprite sheet
+        /// </summary>
+        [JsonPropertyName("sheetY")]
+        [JsonInclude]
+        public int SheetY { get; set; }
+
+        /// <summary>
+        /// Text-to-speech description of the Emoji
+        /// </summary>
+        [JsonPropertyName("tts")]
+        [JsonInclude]
+        public string TextToSpeech { get; set; }
+
+        /// <summary>
+        /// Search keywords associated with the Emoji
+        /// </summary>
+        [JsonPropertyName("keywords")]
+        [JsonInclude]
+        public List<string> Keywords { get; set; }
     }
 }
 

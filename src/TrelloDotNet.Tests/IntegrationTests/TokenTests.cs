@@ -1,5 +1,6 @@
 using TrelloDotNet.Model;
 using TrelloDotNet.Model.Options;
+using TrelloDotNet.Model.Options.GetBoardOptions;
 using TrelloDotNet.Model.Options.GetOrganizationOptions;
 
 namespace TrelloDotNet.Tests.IntegrationTests;
@@ -17,6 +18,20 @@ public class TokenTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtu
     }
 
     [Fact]
+    public async Task GetBoardsCurrentTokenCanAccessWithOptions()
+    {
+        List<Board>? boards = await TrelloClient.GetBoardsCurrentTokenCanAccessAsync(new GetBoardOptions
+        {
+            BoardFields = new BoardFields(BoardFieldsType.Name),
+            Filter = GetBoardOptionsFilter.Open
+        }, cancellationToken: TestCancellationToken);
+
+        Board board = Assert.Single(boards, x => x.Id == _board.Id);
+        Assert.Equal(_board.Name, board.Name);
+        Assert.Null(board.Description);
+    }
+
+    [Fact]
     public async Task GetCurrentTokenMembershipsAsync()
     {
         TokenMembershipOverview memberships = await TrelloClient.GetCurrentTokenMembershipsAsync(cancellationToken: TestCancellationToken);
@@ -25,6 +40,24 @@ public class TokenTests(TestFixtureWithNewBoard fixture) : TestBase, IClassFixtu
         Assert.Contains(memberships.OrganizationMemberships, pair => pair.Key.Id == _board.OrganizationId);
         Assert.NotEmpty(memberships.BoardMemberships);
         Assert.Contains(memberships.BoardMemberships, pair => pair.Key.Id == _board.Id);
+    }
+
+    [Fact]
+    public async Task GetCurrentTokenMembershipsAsyncWithOptions()
+    {
+        TokenMembershipOverview memberships = await TrelloClient.GetCurrentTokenMembershipsAsync(new GetBoardOptions
+        {
+            BoardFields = new BoardFields(BoardFieldsType.Name),
+            Filter = GetBoardOptionsFilter.Open
+        }, new GetOrganizationOptions
+        {
+            OrganizationFields = OrganizationFields.All
+        }, TestCancellationToken);
+
+        Assert.NotNull(memberships);
+        Assert.Contains(memberships.OrganizationMemberships, pair => pair.Key.Id == _board.OrganizationId);
+        KeyValuePair<Board, MembershipType> boardMembership = Assert.Single(memberships.BoardMemberships, pair => pair.Key.Id == _board.Id);
+        Assert.Equal(_board.Name, boardMembership.Key.Name);
     }
 
     [Fact]

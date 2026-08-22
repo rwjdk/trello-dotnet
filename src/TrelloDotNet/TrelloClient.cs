@@ -68,6 +68,7 @@ namespace TrelloDotNet
         /// </summary>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>The inbox information for the token owner</returns>
+        [Obsolete("In June 2026 Trello Stopped working with the Inbox over API. It is unknown if this is a bug or intentional choice, but added this warning for people to be aware")]
         public async Task<TokenMemberInbox> GetTokenMemberInboxAsync(CancellationToken cancellationToken = default)
         {
             TokenMemberInformationInbox inbox = (await _apiRequestController.Get<TokenMemberInformationInbox>($"{UrlPaths.Members}/me?fields=inbox", cancellationToken));
