@@ -17,6 +17,7 @@ _Welcome to TrelloDotNet - A .NET implementation of the [Trello REST API](https:
 
 ## Features
 - A [TrelloClient](https://github.com/rwjdk/trello-dotnet/wiki/TrelloClient) for CRUD operations on Trello features
+- OAuth 2.0 authorization-code flow with PKCE, rotating refresh tokens, and bearer-authenticated API requests
 - An [Automation Engine](https://github.com/rwjdk/trello-dotnet/wiki/Automation-Engine) and [Webhook Data Receiver](https://github.com/rwjdk/trello-dotnet/wiki/Webhook-Data-Receiver) for handling webhook events
 
 ## Getting Started
@@ -27,6 +28,53 @@ _Welcome to TrelloDotNet - A .NET implementation of the [Trello REST API](https:
 3. Create a new instance of the `TrelloClient` _(located in the namespace 'TrelloDotNet')_
 4. Locate the IDs of your Boards, Lists, and Cards (see video [here](https://youtu.be/es84INLIiKI) or at the end of this README)
 5. Use the TrelloClient based on the examples below and/or the [Wiki](https://github.com/rwjdk/trello-dotnet/wiki).
+
+### OAuth 2.0
+
+OAuth 2.0 is recommended for user-facing applications. Create an OAuth 2.0 client in the [Trello app administration page](https://trello.com/apps/admin), configure an exact callback URL, and enable the scopes your application needs.
+
+```cs
+TrelloOAuth2AuthorizationRequest authorization = TrelloOAuth2Flow.CreateAuthorizationRequest(
+    "<clientId>",
+    "https://example.com/oauth/callback",
+    new[]
+    {
+        TrelloOAuth2Scope.ReadMember,
+        TrelloOAuth2Scope.ReadBoard,
+        TrelloOAuth2Scope.WriteBoard
+    },
+    generateRefreshToken: true);
+
+// Store authorization.CodeVerifier and authorization.State securely for the callback,
+// then redirect the user to authorization.AuthorizationUri.
+
+// In the callback, validate the returned state before exchanging the code.
+(string returnedCode, string returnedState) =
+    TrelloOAuth2Flow.ParseCallbackUrl(completeCallbackUrl);
+
+if (returnedState != authorization.State)
+{
+    throw new InvalidOperationException("The OAuth state did not match.");
+}
+
+TrelloOAuth2TokenResponse tokens = await TrelloOAuth2Flow.ExchangeCodeAsync(
+    "<clientId>",
+    returnedCode,
+    authorization.CodeVerifier,
+    "https://example.com/oauth/callback",
+    clientSecret: "<clientSecret>"); // Omit the secret for a public client.
+
+TrelloClient client = TrelloClient.FromOAuth2AccessToken(tokens.AccessToken);
+
+// For a long-running confidential application, persist the initial refresh token and
+// let TrelloDotNet obtain and refresh access tokens. Every replacement refresh token
+// is persisted before its access token is used.
+TrelloClient refreshingClient = TrelloClient.FromOAuth2RefreshToken(
+    clientId: "<clientId>",
+    clientSecret: "<clientSecret>",
+    refreshToken: tokens.RefreshToken,
+    refreshTokenSaver: newRefreshToken => tokenStore.SaveAsync(newRefreshToken));
+```
 
 ### Examples of Usage:
 

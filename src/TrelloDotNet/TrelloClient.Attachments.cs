@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using TrelloDotNet.Control;
@@ -134,7 +133,7 @@ namespace TrelloDotNet
             {
                 if (ShouldSendTrelloCredentials(attachmentUri))
                 {
-                    request.Headers.Authorization = AuthenticationHeaderValue.Parse($"OAuth oauth_consumer_key=\"{_apiRequestController.ApiKey}\", oauth_token=\"{_apiRequestController.Token}\"");
+                    await _apiRequestController.AddCredentialsToHeaderAsync(request, cancellationToken);
                 }
 
                 HttpResponseMessage response = await _apiRequestController.HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);

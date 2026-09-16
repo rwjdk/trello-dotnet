@@ -76,6 +76,11 @@ namespace TrelloDotNet
         /// <returns>List of webhooks for the current token</returns>
         public async Task<List<Webhook>> GetWebhooksForCurrentTokenAsync(CancellationToken cancellationToken = default)
         {
+            if (_apiRequestController.UsesOAuth2)
+            {
+                throw new System.NotSupportedException("Trello does not expose an endpoint that lists every webhook belonging to an OAuth 2.0 grant.");
+            }
+
             return await _apiRequestController.Get<List<Webhook>>(GetUrlBuilder.GetWebhooksForToken(_apiRequestController.Token), cancellationToken);
         }
 

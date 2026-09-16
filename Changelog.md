@@ -1,5 +1,11 @@
 ﻿# Changelog
 
+## 2.8.4 (16th of September 2026)
+#### TrelloClient
+- Added OAuth 2.0 support (along-side normal API-Key/Token which is still the recommended method for non-interactive usage)
+
+<hr>
+
 ## 2.8.3 (22nd of August 2026)
 #### General
 - Fixed README badges and updated them to use the new repository URL

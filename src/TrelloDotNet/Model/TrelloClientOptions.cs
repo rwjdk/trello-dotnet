@@ -31,7 +31,7 @@
         public double DelayInSecondsToWaitInTokenLimitExceededRetry { get; set; }
 
         /// <summary>
-        /// Trello API secret for Webhook signature validation
+        /// Trello Auth application secret or confidential OAuth 2.0 client secret used to validate Webhook signatures
         /// </summary>
         public string Secret { get; set; }
 

@@ -17,6 +17,7 @@ namespace TrelloDotNet.Control
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly string _token;
+        private readonly ITrelloOAuth2TokenProvider _oauth2TokenProvider;
         private readonly TrelloClient _client;
 
         internal HttpClient HttpClient => _httpClient;
@@ -30,9 +31,19 @@ namespace TrelloDotNet.Control
             _client = client;
         }
 
+        internal ApiRequestController(HttpClient httpClient, ITrelloOAuth2TokenProvider oauth2TokenProvider, TrelloClient client)
+        {
+            _httpClient = httpClient;
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _oauth2TokenProvider = oauth2TokenProvider;
+            _client = client;
+        }
+
         public string Token => _token;
 
         public string ApiKey => _apiKey;
+
+        internal bool UsesOAuth2 => _oauth2TokenProvider != null;
 
         internal async Task<T> Get<T>(string suffix, CancellationToken cancellationToken, params QueryParameter[] parameters)
         {
@@ -47,7 +58,7 @@ namespace TrelloDotNet.Control
             HttpResponseMessage response;
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
-                AddCredentialsToHeaderIfNeeded(request);
+                await AddCredentialsToHeaderIfNeededAsync(request, cancellationToken);
                 response = await _httpClient.SendAsync(request, cancellationToken);
             }
             string responseContent = await response.Content.ReadAsStringAsync();
@@ -84,7 +95,7 @@ namespace TrelloDotNet.Control
                 using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, uri))
                 {
                     request.Content = multipartFormContent;
-                    AddCredentialsToHeaderIfNeeded(request);
+                    await AddCredentialsToHeaderIfNeededAsync(request, cancellationToken);
                     response = await _httpClient.SendAsync(request, cancellationToken);
                 }
                 string responseContent = await response.Content.ReadAsStringAsync();
@@ -104,7 +115,7 @@ namespace TrelloDotNet.Control
             HttpResponseMessage response;
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, uri))
             {
-                AddCredentialsToHeaderIfNeeded(request);
+                await AddCredentialsToHeaderIfNeededAsync(request, cancellationToken);
                 response = await _httpClient.SendAsync(request, cancellationToken);
             }
             string content = await response.Content.ReadAsStringAsync();
@@ -130,7 +141,7 @@ namespace TrelloDotNet.Control
             HttpResponseMessage response;
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, uri))
             {
-                AddCredentialsToHeaderIfNeeded(request);
+                await AddCredentialsToHeaderIfNeededAsync(request, cancellationToken);
                 response = await _httpClient.SendAsync(request, cancellationToken);
             }
             string responseContent = await response.Content.ReadAsStringAsync();
@@ -157,7 +168,7 @@ namespace TrelloDotNet.Control
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, uri))
             {
                 request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
-                AddCredentialsToHeaderIfNeeded(request);
+                await AddCredentialsToHeaderIfNeededAsync(request, cancellationToken);
                 response = await _httpClient.SendAsync(request, cancellationToken);
             }
             string responseContent = await response.Content.ReadAsStringAsync();
@@ -184,7 +195,7 @@ namespace TrelloDotNet.Control
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, uri))
             {
                 request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
-                AddCredentialsToHeaderIfNeeded(request);
+                await AddCredentialsToHeaderIfNeededAsync(request, cancellationToken);
                 response = await _httpClient.SendAsync(request, cancellationToken);
             }
             string responseContent = await response.Content.ReadAsStringAsync();
@@ -204,7 +215,7 @@ namespace TrelloDotNet.Control
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, uri))
             {
                 request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
-                AddCredentialsToHeaderIfNeeded(request);
+                await AddCredentialsToHeaderIfNeededAsync(request, cancellationToken);
                 response = await _httpClient.SendAsync(request, cancellationToken);
             }
             string responseContent = await response.Content.ReadAsStringAsync();
@@ -297,7 +308,7 @@ namespace TrelloDotNet.Control
             HttpResponseMessage response;
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, uri))
             {
-                AddCredentialsToHeaderIfNeeded(request);
+                await AddCredentialsToHeaderIfNeededAsync(request, cancellationToken);
                 response = await _httpClient.SendAsync(request, cancellationToken);
             }
             string responseContent = await response.Content.ReadAsStringAsync();
@@ -316,7 +327,7 @@ namespace TrelloDotNet.Control
             HttpResponseMessage response;
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, uri))
             {
-                AddCredentialsToHeaderIfNeeded(request);
+                await AddCredentialsToHeaderIfNeededAsync(request, cancellationToken);
                 response = await _httpClient.SendAsync(request, cancellationToken);
             }
             string responseContent = await response.Content.ReadAsStringAsync();
@@ -345,7 +356,7 @@ namespace TrelloDotNet.Control
 
         private int GetQueryStringCredentialPrefixLength()
         {
-            if (_client.Options.SendCredentialsMode == SendCredentialsMode.Header)
+            if (UsesOAuth2 || _client.Options.SendCredentialsMode == SendCredentialsMode.Header)
             {
                 return 0;
             }
@@ -355,7 +366,7 @@ namespace TrelloDotNet.Control
 
         private string GetQueryStringCredentials()
         {
-            if (_client.Options.SendCredentialsMode == SendCredentialsMode.Header)
+            if (UsesOAuth2 || _client.Options.SendCredentialsMode == SendCredentialsMode.Header)
             {
                 return string.Empty;
             }
@@ -363,10 +374,33 @@ namespace TrelloDotNet.Control
             return $"key={_apiKey}&token={_token}";
         }
 
-        private void AddCredentialsToHeaderIfNeeded(HttpRequestMessage request)
+        internal async Task AddCredentialsToHeaderIfNeededAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            if (UsesOAuth2)
+            {
+                await AddCredentialsToHeaderAsync(request, cancellationToken);
+                return;
+            }
+
             if (_client.Options.SendCredentialsMode != SendCredentialsMode.Header)
             {
+                return;
+            }
+
+            await AddCredentialsToHeaderAsync(request, cancellationToken);
+        }
+
+        internal async Task AddCredentialsToHeaderAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            if (UsesOAuth2)
+            {
+                string accessToken = await _oauth2TokenProvider.GetAccessTokenAsync(cancellationToken);
+                if (string.IsNullOrWhiteSpace(accessToken))
+                {
+                    throw new InvalidOperationException("The OAuth 2.0 token provider returned an empty access token.");
+                }
+
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 return;
             }
 

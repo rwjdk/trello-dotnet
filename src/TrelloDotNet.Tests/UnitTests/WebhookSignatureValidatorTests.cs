@@ -39,7 +39,7 @@ public class WebhookSignatureValidatorTests
             WebhookSignatureValidator.ValidateSignature("{}", "signature", "https://example.com/webhook", null!));
 
         Assert.Equal("secret", exception.ParamName);
-        Assert.Contains("API secret", exception.Message);
+        Assert.Contains("Trello Auth application secret or confidential OAuth 2.0 client secret", exception.Message);
     }
 
     private static string CreateSignature(string json, string webhookUrl, string secret)

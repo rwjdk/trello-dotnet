@@ -22,7 +22,7 @@ namespace TrelloDotNet.Control.Webhook
             if (webhookUrl == null)
                 throw new ArgumentNullException(nameof(webhookUrl));
             if (secret == null)
-                throw new ArgumentNullException(nameof(secret), "You must provide an API secret to use Webhook Signature Validation. Please set TrelloClientOptions.Secret");
+                throw new ArgumentNullException(nameof(secret), "You must provide a Trello Auth application secret or confidential OAuth 2.0 client secret to use Webhook Signature Validation. Please set TrelloClientOptions.Secret");
 
             int payloadLength = Encoding.UTF8.GetByteCount(json) + Encoding.UTF8.GetByteCount(webhookUrl);
             byte[] payloadBytes = new byte[payloadLength];

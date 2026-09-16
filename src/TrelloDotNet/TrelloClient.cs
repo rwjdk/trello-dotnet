@@ -53,6 +53,97 @@ namespace TrelloDotNet
             _queryParametersBuilder = new QueryParametersBuilder();
         }
 
+        internal TrelloClient(ITrelloOAuth2TokenProvider tokenProvider, TrelloClientOptions options = null, HttpClient httpClient = null)
+        {
+            if (tokenProvider == null)
+            {
+                throw new ArgumentNullException(nameof(tokenProvider));
+            }
+
+            if (httpClient != null)
+            {
+                _staticHttpClient = httpClient;
+            }
+
+            Options = options ?? new TrelloClientOptions();
+            _apiRequestController = new ApiRequestController(_staticHttpClient, tokenProvider, this);
+            _queryParametersBuilder = new QueryParametersBuilder();
+        }
+
+        /// <summary>
+        /// Creates a TrelloClient that uses a fixed OAuth 2.0 access token.
+        /// </summary>
+        /// <param name="accessToken">OAuth 2.0 access token</param>
+        /// <param name="options">Optional client options; if null, default options will be used</param>
+        /// <param name="httpClient">Optional HTTP Client to use for requests; if not provided, an internal static HttpClient will be used</param>
+        /// <returns>A TrelloClient configured to use OAuth 2.0 bearer authentication</returns>
+        public static TrelloClient FromOAuth2AccessToken(string accessToken, TrelloClientOptions options = null, HttpClient httpClient = null)
+        {
+            if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                throw new ArgumentException("You need to specify an OAuth 2.0 access token.", nameof(accessToken));
+            }
+
+            return new TrelloClient(new FixedTrelloOAuth2TokenProvider(accessToken), options, httpClient);
+        }
+
+        /// <summary>
+        /// Creates a TrelloClient that automatically obtains and refreshes OAuth 2.0 access tokens for a confidential client.
+        /// </summary>
+        /// <param name="clientId">OAuth 2.0 client ID</param>
+        /// <param name="clientSecret">OAuth 2.0 client secret</param>
+        /// <param name="refreshToken">Current OAuth 2.0 refresh token</param>
+        /// <param name="refreshTokenSaver">Callback that securely persists each replacement refresh token</param>
+        /// <param name="options">Optional client options; if null, default options will be used</param>
+        /// <param name="httpClient">Optional HTTP Client to use for token and API requests</param>
+        /// <returns>A TrelloClient configured to automatically refresh OAuth 2.0 access tokens</returns>
+        public static TrelloClient FromOAuth2RefreshToken(
+            string clientId,
+            string clientSecret,
+            string refreshToken,
+            TrelloOAuth2RefreshTokenSaver refreshTokenSaver,
+            TrelloClientOptions options = null,
+            HttpClient httpClient = null)
+        {
+            if (string.IsNullOrWhiteSpace(clientSecret))
+            {
+                throw new ArgumentException("You need to specify an OAuth 2.0 client secret.", nameof(clientSecret));
+            }
+
+            RefreshingTrelloOAuth2TokenProvider tokenProvider = new RefreshingTrelloOAuth2TokenProvider(
+                clientId,
+                clientSecret,
+                refreshToken,
+                refreshTokenSaver,
+                httpClient);
+            return new TrelloClient(tokenProvider, options, httpClient);
+        }
+
+        /// <summary>
+        /// Creates a TrelloClient that automatically obtains and refreshes OAuth 2.0 access tokens for a public client.
+        /// </summary>
+        /// <param name="clientId">OAuth 2.0 client ID</param>
+        /// <param name="refreshToken">Current OAuth 2.0 refresh token</param>
+        /// <param name="refreshTokenSaver">Callback that securely persists each replacement refresh token</param>
+        /// <param name="options">Optional client options; if null, default options will be used</param>
+        /// <param name="httpClient">Optional HTTP Client to use for token and API requests</param>
+        /// <returns>A TrelloClient configured to automatically refresh OAuth 2.0 access tokens</returns>
+        public static TrelloClient FromOAuth2RefreshToken(
+            string clientId,
+            string refreshToken,
+            TrelloOAuth2RefreshTokenSaver refreshTokenSaver,
+            TrelloClientOptions options = null,
+            HttpClient httpClient = null)
+        {
+            RefreshingTrelloOAuth2TokenProvider tokenProvider = new RefreshingTrelloOAuth2TokenProvider(
+                clientId,
+                null,
+                refreshToken,
+                refreshTokenSaver,
+                httpClient);
+            return new TrelloClient(tokenProvider, options, httpClient);
+        }
+
         /// <summary>
         /// Retrieves information about the token currently used by this TrelloClient instance.
         /// </summary>
@@ -60,6 +151,11 @@ namespace TrelloDotNet
         /// <returns>Information about the token</returns>
         public async Task<TokenInformation> GetTokenInformationAsync(CancellationToken cancellationToken = default)
         {
+            if (_apiRequestController.UsesOAuth2)
+            {
+                throw new NotSupportedException("Trello does not expose token information through this endpoint for OAuth 2.0 access tokens.");
+            }
+
             return await _apiRequestController.Get<TokenInformation>($"{UrlPaths.Tokens}/{_apiRequestController.Token}", cancellationToken);
         }
 

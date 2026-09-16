@@ -244,6 +244,11 @@ namespace TrelloDotNet
         /// <returns>The member that owns the token</returns>
         public async Task<Member> GetTokenMemberAsync(CancellationToken cancellationToken = default)
         {
+            if (_apiRequestController.UsesOAuth2)
+            {
+                return await _apiRequestController.Get<Member>($"{UrlPaths.Members}/me", cancellationToken);
+            }
+
             return await _apiRequestController.Get<Member>(GetUrlBuilder.GetTokenMember(_apiRequestController.Token), cancellationToken);
         }
 
@@ -260,7 +265,10 @@ namespace TrelloDotNet
                 return await GetTokenMemberAsync(cancellationToken);
             }
 
-            return await _apiRequestController.Get<Member>(GetUrlBuilder.GetTokenMember(_apiRequestController.Token), cancellationToken, options.GetParameters());
+            string suffix = _apiRequestController.UsesOAuth2
+                ? $"{UrlPaths.Members}/me"
+                : GetUrlBuilder.GetTokenMember(_apiRequestController.Token);
+            return await _apiRequestController.Get<Member>(suffix, cancellationToken, options.GetParameters());
         }
 
         /// <summary>
