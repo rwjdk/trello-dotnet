@@ -16,9 +16,9 @@ jobs:
     timeout-minutes: 20
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
@@ -41,15 +41,15 @@ jobs:
         TrelloToken5: ${{ secrets.TRELLOTOKEN5 }}
     - name: Upload test diagnostics
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: test-results
         path: src/TrelloDotNet.Tests/TestResults
         retention-days: 7
     - name: Publish coverage report to coveralls.io   
-      uses: coverallsapp/github-action@master   
+      uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }} 
-        path-to-lcov: src/TrelloDotNet.Tests/TestResults/coverage.info
+        file: src/TrelloDotNet.Tests/TestResults/coverage.info
     - name: Publish to NuGet if needed
       run: dotnet nuget push **\*.nupkg --source 'https://api.nuget.org/v3/index.json' --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
