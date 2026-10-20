@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="AGENTS.md" />
+    <File Path="Changelog.md" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/OAuth2Tester/OAuth2Tester.csproj" />
+  <Project Path="src/TrelloDotNet.Tests/TrelloDotNet.Tests.csproj" />
+  <Project Path="src/TrelloDotNet/TrelloDotNet.csproj" />
+</Solution>
