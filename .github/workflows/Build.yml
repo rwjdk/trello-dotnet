@@ -14,6 +14,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
     
     steps:
     - uses: actions/checkout@v5
@@ -53,5 +56,12 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }} 
         file: src/TrelloDotNet.Tests/TestResults/coverage.info
+    - name: Log in to NuGet using trusted publishing
+      uses: NuGet/login@v1
+      id: nuget-login
+      with:
+        user: rwjdk
     - name: Publish to NuGet if needed
-      run: dotnet nuget push **\*.nupkg --source 'https://api.nuget.org/v3/index.json' --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
+      run: dotnet nuget push "src/TrelloDotNet/bin/Release/TrelloDotNet.*.nupkg" --source 'https://api.nuget.org/v3/index.json' --api-key "$NUGET_API_KEY" --skip-duplicate
+      env:
+        NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
