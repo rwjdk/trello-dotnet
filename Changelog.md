@@ -1,5 +1,11 @@
 ﻿# Changelog
 
+## 2.8.5 (2nd of November 2026)
+#### TrelloClient
+- Fixed long comments failing with HTTP 414 by sending comment text in the JSON body when adding or updating comments.
+
+---
+
 ## 2.8.4 (16th of September 2026)
 #### TrelloClient
 - Added OAuth 2.0 support (along-side normal API-Key/Token which is still the recommended method for non-interactive usage)

@@ -22,7 +22,8 @@ namespace TrelloDotNet
         /// <returns>The resulting comment action</returns>
         public async Task<TrelloAction> AddCommentAsync(string cardId, Comment comment, CancellationToken cancellationToken = default)
         {
-            return await _apiRequestController.Post<TrelloAction>($"{UrlPaths.Cards}/{cardId}/actions/comments", cancellationToken, _queryParametersBuilder.GetViaQueryParameterAttributes(comment));
+            string payload = JsonSerializer.Serialize(new { text = comment.Text });
+            return await _apiRequestController.PostWithJsonPayload<TrelloAction>($"{UrlPaths.Cards}/{cardId}/actions/comments", cancellationToken, payload);
         }
 
         /// <summary>
@@ -33,7 +34,8 @@ namespace TrelloDotNet
         /// <returns>The updated comment action</returns>
         public async Task<TrelloAction> UpdateCommentActionAsync(TrelloAction commentAction, CancellationToken cancellationToken = default)
         {
-            return await _apiRequestController.Put<TrelloAction>($"{UrlPaths.Actions}/{commentAction.Id}", cancellationToken, new QueryParameter(Constants.TrelloIds.QueryParameterNames.Text, commentAction.Data.Text));
+            string payload = JsonSerializer.Serialize(new { text = commentAction.Data.Text });
+            return await _apiRequestController.PutWithJsonPayload<TrelloAction>($"{UrlPaths.Actions}/{commentAction.Id}", cancellationToken, payload);
         }
 
         /// <summary>
