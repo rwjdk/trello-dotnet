@@ -6,8 +6,11 @@ namespace TrelloDotNet.Tests.PaidPlanIntegrationTests;
 
 public class CustomFieldManagementTests : TestBase
 {
-    [Fact]
-    public async Task AddUpdateAndDeleteCustomFieldsAndOptions()
+    /// <summary>
+    /// Tests custom field and option management on a paid Board.
+    /// </summary>
+    [Fact(Skip = "No test Board with Custom Fields is available.")]
+    public async Task AddUpdateAndDeleteCustomFieldsAndOptionsAsync()
     {
         Board? board = await GetSpecialPaidSubscriptionBoard();
         if (board == null)
@@ -143,8 +146,11 @@ public class CustomFieldManagementTests : TestBase
         Assert.Equal("Custom Field Type have not been defined", noTypeException.Message);
     }
 
-    [Fact]
-    public async Task UpdateCustomFieldValuesOnCardUsingStringOverloads()
+    /// <summary>
+    /// Tests custom field updates using string values on a paid Board.
+    /// </summary>
+    [Fact(Skip = "No test Board with Custom Fields is available.")]
+    public async Task UpdateCustomFieldValuesOnCardUsingStringOverloadsAsync()
     {
         Board? board = await GetSpecialPaidSubscriptionBoard();
         if (board == null)
@@ -186,8 +192,11 @@ public class CustomFieldManagementTests : TestBase
         }
     }
 
-    [Fact]
-    public async Task UpdateCustomFieldValueOnCardRejectsMismatchedTypedValues()
+    /// <summary>
+    /// Tests custom field type validation using fields from a paid Board.
+    /// </summary>
+    [Fact(Skip = "No test Board with Custom Fields is available.")]
+    public async Task UpdateCustomFieldValueOnCardRejectsMismatchedTypedValuesAsync()
     {
         Board? board = await GetSpecialPaidSubscriptionBoard();
         if (board == null)

@@ -7,8 +7,11 @@ namespace TrelloDotNet.Tests.PaidPlanIntegrationTests;
 
 public class CustomFieldsTests : TestBase
 {
-    [Fact]
-    public async Task CustomFields()
+    /// <summary>
+    /// Tests custom field values and filtering on a paid Board.
+    /// </summary>
+    [Fact(Skip = "No test Board with Custom Fields is available.")]
+    public async Task CustomFieldsAsync()
     {
         Board? board = await GetSpecialPaidSubscriptionBoard();
         if (board == null)
